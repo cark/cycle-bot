@@ -4,12 +4,13 @@ mod game;
 mod screen;
 mod ui;
 
+use avian2d::prelude::*;
 use bevy::{
     asset::AssetMetaCheck,
     audio::{AudioPlugin, Volume},
+    math::ivec2,
     prelude::*,
 };
-
 pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
@@ -39,6 +40,11 @@ impl Plugin for AppPlugin {
                         canvas: Some("#bevy".to_string()),
                         fit_canvas_to_parent: true,
                         prevent_default_event_handling: true,
+                        position: if cfg!(feature = "dev") {
+                            WindowPosition::new(ivec2(1920, 0))
+                        } else {
+                            WindowPosition::Automatic
+                        },
                         ..default()
                     }
                     .into(),
@@ -52,6 +58,10 @@ impl Plugin for AppPlugin {
                 }),
         );
 
+        app.add_plugins(PhysicsPlugins::default());
+        if cfg!(feature = "dev") {
+            app.add_plugins(PhysicsDebugPlugin::default());
+        }
         // Add other plugins.
         app.add_plugins((game::plugin, screen::plugin, ui::plugin));
 
@@ -74,10 +84,12 @@ enum AppSet {
     Update,
 }
 
-fn spawn_camera(mut commands: Commands) {
-    commands.spawn((
+fn spawn_camera(mut cmd: Commands) {
+    let mut camera_bundle = Camera2dBundle::default();
+    camera_bundle.projection.scale = 1. / 4.;
+    cmd.spawn((
         Name::new("Camera"),
-        Camera2dBundle::default(),
+        camera_bundle,
         // Render all UI to this camera.
         // Not strictly necessary since we only use one camera,
         // but if we don't use this component, our UI will disappear as soon

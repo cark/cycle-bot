@@ -2,6 +2,7 @@ pub mod config;
 #[cfg(feature = "dev")]
 mod dev_tools;
 mod game;
+pub mod lerp;
 mod screen;
 mod ui;
 

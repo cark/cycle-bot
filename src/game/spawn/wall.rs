@@ -1,5 +1,8 @@
 // use 2d::prelude::*;
-use crate::screen::Screen;
+use crate::{
+    game::physics::{coll_groups, ObjectGroup},
+    screen::Screen,
+};
 use bevy::{math::vec2, prelude::*};
 use bevy_rapier2d::prelude::*;
 
@@ -27,6 +30,7 @@ fn on_spawn_wall(trigger: Trigger<SpawnWall>, mut cmd: Commands) {
             transform: Transform::from_translation(translation.extend(0.0)),
             ..default()
         },
+        coll_groups(ObjectGroup::WALL, Group::all().bits()),
         // #[cfg(feature = "dev")]
         // DebugRender::default().with_collider_color(Color::srgb(0.0, 0.0, 1.0)),
     ));

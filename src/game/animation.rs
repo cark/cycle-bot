@@ -6,28 +6,28 @@
 
 // use std::time::Duration;
 
-use bevy::prelude::*;
+// use bevy::prelude::*;
 
 // use super::audio::sfx::PlaySfx;
 // use crate::AppSet;
 
-pub(super) fn plugin(app: &mut App) {
-    // // Animate and play sound effects based on controls.
-    // app.register_type::<PlayerAnimation>();
-    // app.add_systems(
-    //     Update,
-    //     (
-    //         update_animation_timer.in_set(AppSet::TickTimers),
-    //         (
-    //             update_animation_movement,
-    //             update_animation_atlas,
-    //             trigger_step_sfx,
-    //         )
-    //             .chain()
-    //             .in_set(AppSet::Update),
-    //     ),
-    // );
-}
+// pub(super) fn plugin(app: &mut App) {
+//     // // Animate and play sound effects based on controls.
+//     // app.register_type::<PlayerAnimation>();
+//     // app.add_systems(
+//     //     Update,
+//     //     (
+//     //         update_animation_timer.in_set(AppSet::TickTimers),
+//     //         (
+//     //             update_animation_movement,
+//     //             update_animation_atlas,
+//     //             trigger_step_sfx,
+//     //         )
+//     //             .chain()
+//     //             .in_set(AppSet::Update),
+//     //     ),
+//     // );
+// }
 
 // / Update the sprite direction and animation state (idling/walking).
 // fn update_animation_movement(

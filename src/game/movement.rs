@@ -3,11 +3,11 @@
 //! If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/latest/examples/movement/physics_in_fixed_timestep.rs).
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 
-use crate::AppSet;
+// use crate::AppSet;
 
-pub(super) fn plugin(app: &mut App) {
+pub(super) fn plugin(_app: &mut App) {
     // // Record directional input as movement controls.
     // app.register_type::<MovementController>();
     // app.add_systems(

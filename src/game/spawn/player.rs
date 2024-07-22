@@ -1,9 +1,6 @@
 //! Spawn the player.
 
-use bevy::{
-    math::{vec2, VectorSpace},
-    prelude::*,
-};
+use bevy::{math::vec2, prelude::*};
 use bevy_rapier2d::prelude::*;
 
 use crate::{config::GameConfig, screen::Screen, AppSet};
@@ -95,7 +92,7 @@ fn spawn_player(
         let seat_tube_joint = FixedJointBuilder::new()
             .local_anchor1(vec2(0.0, TUBE_LENGTH / 2.0))
             .local_anchor2(vec2(0.0, 0.0));
-        let seat = cmd
+        let _seat = cmd
             .spawn((
                 Seat,
                 RigidBody::Dynamic,

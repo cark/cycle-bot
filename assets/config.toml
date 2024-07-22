@@ -1,0 +1,14 @@
+jump_y_speed = 10.0
+
+[wheel]
+torque_multiplier = -0.8
+angular_damping = 0.8
+linear_damping = 0.0
+
+[tube]
+torque_multiplier = 0.15
+angular_damping = 4.0
+linear_damping = 0.0
+
+[seat]
+mass = 0.0125

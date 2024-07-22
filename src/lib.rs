@@ -1,16 +1,19 @@
+pub mod config;
 #[cfg(feature = "dev")]
 mod dev_tools;
 mod game;
 mod screen;
 mod ui;
 
-use avian2d::prelude::*;
 use bevy::{
     asset::AssetMetaCheck,
     audio::{AudioPlugin, Volume},
     math::ivec2,
     prelude::*,
 };
+
+use bevy_rapier2d::prelude::*;
+
 pub struct AppPlugin;
 
 impl Plugin for AppPlugin {
@@ -58,12 +61,12 @@ impl Plugin for AppPlugin {
                 }),
         );
 
-        app.add_plugins(PhysicsPlugins::default());
+        app.add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(1.0));
         if cfg!(feature = "dev") {
-            app.add_plugins(PhysicsDebugPlugin::default());
+            app.add_plugins(RapierDebugRenderPlugin::default());
         }
         // Add other plugins.
-        app.add_plugins((game::plugin, screen::plugin, ui::plugin));
+        app.add_plugins((game::plugin, screen::plugin, ui::plugin, config::plugin));
 
         // Enable dev tools for dev builds.
         #[cfg(feature = "dev")]
@@ -86,7 +89,7 @@ enum AppSet {
 
 fn spawn_camera(mut cmd: Commands) {
     let mut camera_bundle = Camera2dBundle::default();
-    camera_bundle.projection.scale = 1. / 4.;
+    camera_bundle.projection.scale = 1. / 24.;
     cmd.spawn((
         Name::new("Camera"),
         camera_bundle,

@@ -15,6 +15,6 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut commands: Commands) {
     // The only thing we have in our level is a player,
     // but add things like walls etc. here.
     commands.trigger(SpawnPlayer);
-    commands.trigger(SpawnWall(Rect::new(-20., -0.1, 200., -2.)));
+    commands.trigger(SpawnWall(Rect::new(-50., -0.1, 50., -2.)));
     //commands.trigger(Spawn)
 }

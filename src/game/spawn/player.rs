@@ -4,7 +4,7 @@ use bevy::{math::vec2, prelude::*};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    config::GameConfig,
+    data::config::GameConfig,
     game::{
         camera::CenterCamera,
         physics::{coll_groups, ObjectGroup},
@@ -26,7 +26,7 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 #[derive(Event, Debug)]
-pub struct SpawnPlayer;
+pub struct SpawnPlayer(pub Vec2);
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
@@ -49,14 +49,14 @@ pub struct Seat;
 struct PlayerOnGround;
 
 fn spawn_player(
-    _trigger: Trigger<SpawnPlayer>,
+    trigger: Trigger<SpawnPlayer>,
     mut cmd: Commands,
     config: Res<GameConfig>, // image_handles: Res<HandleMap<ImageKey>>,
                              // mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     cmd.spawn((
         Player,
-        SpatialBundle::from(Transform::from_xyz(0.0, 1.0, 0.0)),
+        SpatialBundle::from(Transform::from_translation(trigger.event().0.extend(0.0))),
         StateScoped(Screen::Playing),
     ))
     .with_children(|cmd| {
@@ -91,6 +91,7 @@ fn spawn_player(
                     angular_damping: config.tube.angular_damping,
                     linear_damping: config.tube.linear_damping,
                 },
+                ColliderMassProperties::Mass(config.tube.mass),
                 Velocity::zero(),
             ))
             .id();
@@ -107,6 +108,7 @@ fn spawn_player(
                 SpatialBundle::from(Transform::from_xyz(0.0, 1.0 + TUBE_LENGTH / 2.0, 0.0)),
                 ImpulseJoint::new(tube, seat_tube_joint),
                 Velocity::zero(),
+                GravityScale(config.seat.gravity_scale),
             ))
             .id();
         //let right_tigh = cmd.spawn((RigidBody::Dynamic, ColliderMassProperties::Mass(0.0)));

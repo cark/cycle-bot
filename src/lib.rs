@@ -1,8 +1,9 @@
-pub mod config;
+pub mod data;
 #[cfg(feature = "dev")]
 mod dev_tools;
 mod game;
 pub mod lerp;
+pub mod mouse;
 mod screen;
 mod ui;
 
@@ -66,8 +67,15 @@ impl Plugin for AppPlugin {
         if cfg!(feature = "dev") {
             app.add_plugins(RapierDebugRenderPlugin::default());
         }
+
         // Add other plugins.
-        app.add_plugins((game::plugin, screen::plugin, ui::plugin, config::plugin));
+        app.add_plugins((
+            game::plugin,
+            screen::plugin,
+            ui::plugin,
+            data::plugin,
+            mouse::plugin,
+        ));
 
         // Enable dev tools for dev builds.
         #[cfg(feature = "dev")]
@@ -88,12 +96,17 @@ enum AppSet {
     Update,
 }
 
+#[derive(Component)]
+pub struct MainCamera;
+
 fn spawn_camera(mut cmd: Commands) {
     let mut camera_bundle = Camera2dBundle::default();
-    camera_bundle.projection.scale = 1. / 24.;
+    camera_bundle.projection.scale = 1. / 16.;
+    //camera_bundle.projection.scale = 1. / 24.;
     cmd.spawn((
         Name::new("Camera"),
         camera_bundle,
+        MainCamera,
         // Render all UI to this camera.
         // Not strictly necessary since we only use one camera,
         // but if we don't use this component, our UI will disappear as soon

@@ -43,7 +43,7 @@ const SPLASH_FADE_DURATION_SECS: f32 = 0.6;
 
 fn spawn_splash(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
-        .ui_root()
+        .ui_center_root()
         .insert((
             Name::new("Splash screen"),
             BackgroundColor(SPLASH_BACKGROUND_COLOR),

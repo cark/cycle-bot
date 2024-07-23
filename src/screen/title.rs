@@ -24,7 +24,7 @@ enum TitleAction {
 
 fn enter_title(mut commands: Commands) {
     commands
-        .ui_root()
+        .ui_center_root()
         .insert(StateScoped(Screen::Title))
         .with_children(|children| {
             children.button("Play").insert(TitleAction::Play);

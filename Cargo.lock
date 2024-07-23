@@ -457,6 +457,7 @@ checksum = "6f631ce2863f3b6f1af3fa24143363b9fbd21c44218caad495a17b83e6968256"
 dependencies = [
  "anyhow",
  "bevy",
+ "ron",
  "serde",
  "thiserror",
  "toml",
@@ -1348,7 +1349,9 @@ dependencies = [
  "bevy_rapier2d",
  "log",
  "rand",
+ "ron",
  "serde",
+ "uuid",
 ]
 
 [[package]]

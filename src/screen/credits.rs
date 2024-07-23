@@ -27,7 +27,7 @@ enum CreditsAction {
 
 fn enter_credits(mut commands: Commands) {
     commands
-        .ui_root()
+        .ui_center_root()
         .insert(StateScoped(Screen::Credits))
         .with_children(|children| {
             children.header("Made by");

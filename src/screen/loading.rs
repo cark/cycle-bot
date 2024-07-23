@@ -5,14 +5,20 @@ use bevy::prelude::*;
 
 use super::Screen;
 use crate::{
-    config::{GameConfig, GameConfigHandle},
+    data::{
+        config::{GameConfig, GameConfigHandle},
+        level::{LevelData, LevelDataHandle},
+    },
     game::assets::{HandleMap, ImageKey, SfxKey, SoundtrackKey},
     ui::prelude::*,
 };
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Loading), enter_loading);
-    app.add_systems(Update, complete_config.run_if(in_state(Screen::Loading)));
+    app.add_systems(
+        Update,
+        (complete_config, complete_level_data).run_if(in_state(Screen::Loading)),
+    );
     app.add_systems(
         Update,
         continue_to_title.run_if(in_state(Screen::Loading).and_then(all_assets_loaded)),
@@ -20,13 +26,28 @@ pub(super) fn plugin(app: &mut App) {
 }
 
 fn enter_loading(mut cmd: Commands, asset_server: Res<AssetServer>) {
-    let game_config_handle = GameConfigHandle(asset_server.load("config.toml"));
+    let game_config_handle = GameConfigHandle(asset_server.load("game.config.toml"));
+    let level_data_handle = LevelDataHandle(asset_server.load("game.level.ron"));
     cmd.insert_resource(game_config_handle);
-    cmd.ui_root()
+    cmd.insert_resource(level_data_handle);
+    cmd.ui_center_root()
         .insert(StateScoped(Screen::Loading))
         .with_children(|children| {
             children.label("Loading...");
         });
+}
+
+fn complete_level_data(
+    mut cmd: Commands,
+    asset_server: Res<AssetServer>,
+    level_data_handle: Res<LevelDataHandle>,
+    mut level_datas: ResMut<Assets<LevelData>>,
+) {
+    if asset_server.is_loaded_with_dependencies(&level_data_handle.0) {
+        if let Some(level_data) = level_datas.remove(level_data_handle.0.id()) {
+            cmd.insert_resource(level_data);
+        }
+    }
 }
 
 fn complete_config(

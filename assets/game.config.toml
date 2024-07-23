@@ -1,0 +1,19 @@
+jump_y_speed = 10.0
+
+[wheel]
+torque_multiplier = -1.6
+angular_damping = 0.8
+linear_damping = 0.0
+
+[tube]
+torque_multiplier = 0.004
+angular_damping = 10.0
+linear_damping = 0.0
+mass = 0.01
+
+[seat]
+mass = 0.006
+gravity_scale = 0.125
+
+[camera]
+playing_scale_divisor = 24.0

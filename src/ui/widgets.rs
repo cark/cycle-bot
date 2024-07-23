@@ -14,6 +14,10 @@ pub trait Widgets {
 
     /// Spawn a simple text label.
     fn label(&mut self, text: impl Into<String>) -> EntityCommands;
+
+    fn tool_bar(&mut self) -> EntityCommands;
+
+    fn text(&mut self, text: impl Into<String>) -> EntityCommands;
 }
 
 impl<T: Spawn> Widgets for T {
@@ -112,19 +116,54 @@ impl<T: Spawn> Widgets for T {
         });
         entity
     }
+
+    fn text(&mut self, text: impl Into<String>) -> EntityCommands {
+        let entity = self.spawn((
+            Name::new("Label Text"),
+            TextBundle::from_section(
+                text,
+                TextStyle {
+                    font_size: 24.0,
+                    color: LABEL_TEXT,
+                    ..default()
+                },
+            ),
+        ));
+        entity
+    }
+
+    fn tool_bar(&mut self) -> EntityCommands {
+        let entity = self.spawn((
+            Name::new("Tool bar"),
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Baseline,
+                    flex_direction: FlexDirection::Row,
+                    column_gap: Px(10.0),
+                    position_type: PositionType::Relative,
+                    ..default()
+                },
+                ..default()
+            },
+        ));
+        entity
+    }
 }
 
 /// An extension trait for spawning UI containers.
 pub trait Containers {
     /// Spawns a root node that covers the full screen
     /// and centers its content horizontally and vertically.
-    fn ui_root(&mut self) -> EntityCommands;
+    fn ui_center_root(&mut self) -> EntityCommands;
+    fn ui_top_root(&mut self) -> EntityCommands;
 }
 
 impl Containers for Commands<'_, '_> {
-    fn ui_root(&mut self) -> EntityCommands {
+    fn ui_center_root(&mut self) -> EntityCommands {
         self.spawn((
-            Name::new("UI Root"),
+            Name::new("Centering UI Root"),
             NodeBundle {
                 style: Style {
                     width: Percent(100.0),
@@ -133,6 +172,23 @@ impl Containers for Commands<'_, '_> {
                     align_items: AlignItems::Center,
                     flex_direction: FlexDirection::Column,
                     row_gap: Px(10.0),
+                    position_type: PositionType::Absolute,
+                    ..default()
+                },
+                ..default()
+            },
+        ))
+    }
+    fn ui_top_root(&mut self) -> EntityCommands {
+        self.spawn((
+            Name::new("Top UI Root"),
+            NodeBundle {
+                style: Style {
+                    width: Percent(100.0),
+                    height: Percent(100.0),
+                    justify_content: JustifyContent::FlexStart,
+                    align_items: AlignItems::Center,
+                    flex_direction: FlexDirection::Column,
                     position_type: PositionType::Absolute,
                     ..default()
                 },

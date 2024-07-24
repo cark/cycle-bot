@@ -10,6 +10,7 @@ torque_multiplier = 0.004
 angular_damping = 10.0
 linear_damping = 0.0
 mass = 0.01
+length = 1.8
 
 [seat]
 mass = 0.006
@@ -17,3 +18,26 @@ gravity_scale = 0.125
 
 [camera]
 playing_scale_divisor = 24.0
+
+[torso]
+width = 1.8
+height = 1.5
+
+[head]
+x = 0.0
+y = 1.42
+width = 1.5
+height = 1.5
+
+[arms]
+length = 1.0
+width = 0.3
+hand_acc = 80.0
+hand_damping = 1.5
+left.angle = 210.0
+left.socket.point = { x = -0.9, y = 0.3 }
+right.angle = -30.0
+right.socket.point = { x = 0.9, y = 0.3 }
+
+[debug]
+physics = false

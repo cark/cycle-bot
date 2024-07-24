@@ -2,6 +2,7 @@ use bevy::{input::mouse::MouseWheel, prelude::*, window::PrimaryWindow};
 
 use crate::{
     game::{camera::ZoomCamera, GameState},
+    lerp::unlerp,
     mouse::MouseWindowCoords,
     AppSet,
 };
@@ -38,10 +39,18 @@ fn camera_pan(
     mouse_win_coords: Res<MouseWindowCoords>,
     q_window: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let Some(mouse_win_coords) = mouse_win_coords.0 else {
+    let Some(mouse_coords) = mouse_win_coords.0 else {
         return;
     };
+    const BORDER_RATIO: f32 = 1.0 / 5.0;
     let window = q_window.single();
-    let width_band = window.size().x / 5.0;
-    let height_band = window.size().x / 5.0;
+    let width_band = window.size().x * BORDER_RATIO;
+    let height_band = window.size().y * BORDER_RATIO;
+    let x_move: f32 = -unlerp((width_band, 0.0), mouse_coords.x).clamp(0.0, 1.0)
+        + unlerp(
+            (window.size().x - width_band, window.size().x),
+            mouse_coords.x,
+        )
+        .clamp(0.0, 1.0);
+    warn!("{}", x_move);
 }

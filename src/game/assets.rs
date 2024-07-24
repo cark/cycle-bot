@@ -21,6 +21,7 @@ pub enum ImageKey {
     Torso,
     Head,
     Arm,
+    Eyes,
 }
 
 impl AssetKey for ImageKey {
@@ -63,6 +64,15 @@ impl FromWorld for HandleMap<ImageKey> {
                 ImageKey::Arm,
                 asset_server.load_with_settings(
                     "images/arm.png",
+                    |settings: &mut ImageLoaderSettings| {
+                        settings.sampler = ImageSampler::nearest();
+                    },
+                ),
+            ),
+            (
+                ImageKey::Eyes,
+                asset_server.load_with_settings(
+                    "images/eyes.png",
                     |settings: &mut ImageLoaderSettings| {
                         settings.sampler = ImageSampler::nearest();
                     },

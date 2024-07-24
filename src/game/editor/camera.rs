@@ -1,7 +1,11 @@
-use bevy::{input::mouse::MouseWheel, prelude::*, window::PrimaryWindow};
+use bevy::{input::mouse::MouseWheel, math::vec2, prelude::*, window::PrimaryWindow};
 
 use crate::{
-    game::{camera::ZoomCamera, GameState},
+    data::config::GameConfig,
+    game::{
+        camera::{CameraDestination, CenterCamera, ZoomCamera},
+        GameState,
+    },
     lerp::unlerp,
     mouse::MouseWindowCoords,
     AppSet,
@@ -35,10 +39,18 @@ fn camera_zoom(mut cmd: Commands, mut evr_scroll: EventReader<MouseWheel>) {
 }
 
 fn camera_pan(
-    // mut cmd: Commands,
+    mut cmd: Commands,
     mouse_win_coords: Res<MouseWindowCoords>,
     q_window: Query<&Window, With<PrimaryWindow>>,
+    camera_dest: Res<CameraDestination>,
+    config: Res<GameConfig>,
+    time: Res<Time>,
+    q_camera: Query<&mut OrthographicProjection, With<Camera>>,
+    button_input: Res<ButtonInput<MouseButton>>,
 ) {
+    if !button_input.pressed(MouseButton::Middle) {
+        return;
+    }
     let Some(mouse_coords) = mouse_win_coords.0 else {
         return;
     };
@@ -52,5 +64,22 @@ fn camera_pan(
             mouse_coords.x,
         )
         .clamp(0.0, 1.0);
-    warn!("{}", x_move);
+    let y_move: f32 = -unlerp((height_band, 0.0), mouse_coords.y).clamp(0.0, 1.0)
+        + unlerp(
+            (window.size().y - width_band, window.size().y),
+            mouse_coords.y,
+        )
+        .clamp(0.0, 1.0);
+    if let Ok(projection) = q_camera.get_single() {
+        if x_move != 0.0 || y_move != 0.0 {
+            cmd.trigger(CenterCamera(
+                camera_dest.0
+                    + vec2(x_move, -y_move)
+                        * config.editor.camera_speed
+                        * time.delta_seconds()
+                        * projection.scale,
+            ));
+        }
+    }
+    // warn!("{}", y_move);
 }

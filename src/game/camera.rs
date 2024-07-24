@@ -25,7 +25,7 @@ pub enum ZoomCamera {
     Out,
 }
 
-#[derive(Resource)]
+#[derive(Debug, Resource)]
 pub struct CameraDestination(pub Vec2);
 
 #[derive(Resource)]
@@ -59,6 +59,7 @@ fn update_camera_transform(
     mut q_camera: Query<(&mut Transform, &mut OrthographicProjection), With<Camera>>,
 ) {
     if let Some(destination) = destination {
+        // warn!("hello {:?}", destination);
         // camera_bundle.projection.scale = 1. / 24.;
         for (mut transform, mut projection) in &mut q_camera {
             // translation

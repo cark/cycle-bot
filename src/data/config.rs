@@ -13,6 +13,7 @@ pub struct GameConfig {
     pub head: HeadConfig,
     pub arms: ArmsConfig,
     pub eyes: EyesConfig,
+    pub editor: EditorConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -90,6 +91,13 @@ pub struct HeadConfig {
 pub struct EyesConfig {
     pub x: f32,
     pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
+
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct EditorConfig {
+    pub camera_speed: f32,
 }
 
 #[derive(Resource)]

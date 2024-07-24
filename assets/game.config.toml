@@ -13,7 +13,7 @@ mass = 0.01
 length = 1.8
 
 [seat]
-mass = 0.006
+mass = 0.004
 gravity_scale = 0.125
 
 [camera]
@@ -29,14 +29,16 @@ y = 1.42
 width = 1.5
 height = 1.5
 
+[eyes]
+x = 0.0
+y = 0.0
+
 [arms]
 length = 1.0
-width = 0.3
-hand_acc = 80.0
-hand_damping = 1.5
-left.angle = 210.0
+width = 0.5
+angular_damping = 2.0
+mass = 0.001
 left.socket.point = { x = -0.9, y = 0.3 }
-right.angle = -30.0
 right.socket.point = { x = 0.9, y = 0.3 }
 
 [debug]

@@ -12,6 +12,7 @@ pub struct GameConfig {
     pub debug: DebugConfig,
     pub head: HeadConfig,
     pub arms: ArmsConfig,
+    pub eyes: EyesConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -56,15 +57,14 @@ pub struct DebugConfig {
 pub struct ArmsConfig {
     pub length: f32,
     pub width: f32,
-    pub hand_acc: f32,
-    pub hand_damping: f32,
     pub left: ArmConfig,
     pub right: ArmConfig,
+    pub mass: f32,
+    pub angular_damping: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct ArmConfig {
-    pub angle: f32,
     pub socket: SocketConfig,
 }
 
@@ -85,6 +85,11 @@ pub struct HeadConfig {
     pub y: f32,
     pub width: f32,
     pub height: f32,
+}
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct EyesConfig {
+    pub x: f32,
+    pub y: f32,
 }
 
 #[derive(Resource)]

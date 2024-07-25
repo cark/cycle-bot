@@ -17,7 +17,8 @@ pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_background);
     app.add_systems(
         Update,
-        scale_to_screen
+        (scale_to_screen, update_material_pos)
+            .chain()
             .in_set(AppSet::Update)
             .run_if(in_state(Screen::Playing)),
     );
@@ -55,11 +56,11 @@ fn spawn_background(
 
 fn scale_to_screen(
     q_windows: Query<&Window, With<PrimaryWindow>>,
-    q_camera: Query<&OrthographicProjection, With<Camera>>,
-    mut q_background: Query<&mut Transform, With<Background>>,
+    q_camera: Query<(&OrthographicProjection, &Transform), With<Camera>>,
+    mut q_background: Query<&mut Transform, (With<Background>, Without<Camera>)>,
 ) {
     for window in &q_windows {
-        for ortho in &q_camera {
+        for (ortho, camera_transform) in &q_camera {
             if let Ok(mut transform) = q_background.get_single_mut() {
                 let window_aspect_ratio = window.width() / window.height();
                 let ortho_width = ortho.scale * window_aspect_ratio * 2.0;
@@ -69,7 +70,21 @@ fn scale_to_screen(
                 let scale_y = window.height() / ortho_height;
 
                 transform.scale = Vec3::new(scale_x, scale_y, 1.0);
+                transform.translation = camera_transform.translation;
+                transform.translation.z = -10.0;
             }
+        }
+    }
+}
+
+fn update_material_pos(
+    q_background: Query<(&Transform, &Handle<FixedMaterial>), With<Background>>,
+    mut materials: ResMut<Assets<FixedMaterial>>,
+) {
+    for (tr, handle) in &q_background {
+        if let Some(mat) = materials.get_mut(handle) {
+            warn!("handle! {:?}", tr.translation);
+            mat.uniforms.pos = tr.translation.truncate();
         }
     }
 }
@@ -105,10 +120,15 @@ fn ensure_material(
     if let Some(mh) = material {
         mh.0.clone()
     } else {
+        warn!(
+            "{:?}",
+            vec2(config.background.parallax_x, config.background.parallax_y),
+        );
         let material = FixedMaterial::new(
             WHITE,
             image_handles[&ImageKey::Background].clone_weak(),
             vec2(config.background.scale_x, config.background.scale_y),
+            vec2(config.background.parallax_x, config.background.parallax_y),
         );
         let handle = materials.add(material);
         cmd.insert_resource(BackgroundMaterialHandle(handle.clone()));

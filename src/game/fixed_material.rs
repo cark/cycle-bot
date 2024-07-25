@@ -13,30 +13,38 @@ const FRAGMENT_SHADER_ASSET_PATH: &str = "shaders/fixed_material.frag.wgsl";
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct FixedMaterial {
     #[uniform(0)]
-    uniforms: MaterialUniforms,
+    pub uniforms: MaterialUniforms,
     #[texture(1)]
     #[sampler(2)]
     pub texture: Handle<Image>,
 }
 
 impl FixedMaterial {
-    pub fn new(color: impl Into<LinearRgba>, texture: Handle<Image>, scale: Vec2) -> Self {
+    pub fn new(
+        color: impl Into<LinearRgba>,
+        texture: Handle<Image>,
+        scale: Vec2,
+        parallax: Vec2,
+    ) -> Self {
         FixedMaterial {
             texture,
             uniforms: MaterialUniforms {
                 material_color: color.into(),
                 texture_scale: scale,
+                parallax_rate: parallax,
+                pos: Vec2::ZERO,
             },
         }
     }
 }
 
 #[derive(Debug, Clone, ShaderType)]
-struct MaterialUniforms {
+pub struct MaterialUniforms {
     pub material_color: LinearRgba,
     pub texture_scale: Vec2,
+    pub parallax_rate: Vec2,
+    pub pos: Vec2,
 }
-
 impl Material2d for FixedMaterial {
     fn fragment_shader() -> ShaderRef {
         FRAGMENT_SHADER_ASSET_PATH.into()

@@ -77,6 +77,7 @@ fn ensure_material(
             WHITE,
             image_handles[&ImageKey::Wall].clone_weak(),
             vec2(config.wall.scale_x, config.wall.scale_y),
+            vec2(1.0, 1.0),
         );
         let handle = materials.add(material);
         cmd.insert_resource(WallMaterialHandle(handle.clone()));

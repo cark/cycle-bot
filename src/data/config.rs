@@ -100,6 +100,8 @@ pub struct EyesConfig {
 pub struct BackgroundConfig {
     pub scale_x: f32,
     pub scale_y: f32,
+    pub parallax_x: f32,
+    pub parallax_y: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]

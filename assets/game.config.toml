@@ -54,8 +54,10 @@ camera_speed = 1000.0
 [background]
 # scale_x = 40.0
 # scale_y = 40.0
-scale_x = 20.0
-scale_y = 20.0
+scale_x = 60.0
+scale_y = 60.0
+parallax_x = 0.5
+parallax_y = 0.5
 
 [wall]
 scale_x = 8.0

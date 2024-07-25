@@ -1,6 +1,6 @@
 use bevy::{
     prelude::*,
-    render::render_resource::{AsBindGroup, ShaderRef},
+    render::render_resource::{AsBindGroup, ShaderRef, ShaderType},
     sprite::{Material2d, Material2dPlugin},
 };
 
@@ -13,12 +13,28 @@ const FRAGMENT_SHADER_ASSET_PATH: &str = "shaders/fixed_material.frag.wgsl";
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 pub struct FixedMaterial {
     #[uniform(0)]
-    pub color: LinearRgba,
-    #[uniform(1)]
-    pub texture_scale: Vec2, // Add the texture scale parameter
-    #[texture(2)]
-    #[sampler(3)]
+    uniforms: MaterialUniforms,
+    #[texture(1)]
+    #[sampler(2)]
     pub texture: Handle<Image>,
+}
+
+impl FixedMaterial {
+    pub fn new(color: impl Into<LinearRgba>, texture: Handle<Image>, scale: Vec2) -> Self {
+        FixedMaterial {
+            texture,
+            uniforms: MaterialUniforms {
+                material_color: color.into(),
+                texture_scale: scale,
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, ShaderType)]
+struct MaterialUniforms {
+    pub material_color: LinearRgba,
+    pub texture_scale: Vec2,
 }
 
 impl Material2d for FixedMaterial {

@@ -103,11 +103,16 @@ fn ensure_material(
     if let Some(mh) = material {
         mh.0.clone()
     } else {
-        let material = FixedMaterial {
-            color: Color::from(WHITE).into(),
-            texture: image_handles[&ImageKey::Background].clone_weak(),
-            texture_scale: Vec2::splat(20.),
-        };
+        let material = FixedMaterial::new(
+            WHITE,
+            image_handles[&ImageKey::Background].clone_weak(),
+            Vec2::splat(20.),
+        );
+        // FixedMaterial {
+        //     color: Color::from(WHITE).into(),
+        //     texture: image_handles[&ImageKey::Background].clone_weak(),
+        //     texture_scale: Vec2::splat(20.).extend(0.0).extend(0.0),
+        // };
         let handle = materials.add(material);
         cmd.insert_resource(BackgroundMaterialHandle(handle.clone()));
         handle

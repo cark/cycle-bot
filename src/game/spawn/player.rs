@@ -22,9 +22,7 @@ use crate::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    // app.add_event::<SpawnArm>();
     app.observe(on_spawn_player).observe(on_player_death);
-    // app.observe(spawn_arm);
     app.register_type::<Player>();
     app.add_systems(
         Update,
@@ -32,7 +30,6 @@ pub(super) fn plugin(app: &mut App) {
             log_speed,
             check_touch_ground,
             calc_forces,
-            // check_arm_collision,
             monitor_damage_contacts,
         )
             .chain()
@@ -45,19 +42,6 @@ pub(super) fn plugin(app: &mut App) {
             .in_set(AppSet::Update)
             .run_if(in_state(GameState::Playing)),
     );
-    // app.add_systems(
-    //     PostUpdate,
-    //     (spawn_arm, update_followers)
-    //         .after(TransformSystem::TransformPropagate)
-    //         .run_if(in_state(Screen::Playing)),
-    // );
-
-    // app.add_systems(
-    //     Update,
-    //     draw_arms_debug
-    //         .in_set(AppSet::Update)
-    //         .run_if(in_state(GameState::Playing)),
-    // );
 }
 
 #[derive(Event, Debug)]

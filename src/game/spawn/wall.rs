@@ -1,13 +1,15 @@
 use crate::{
-    data::level::WallData,
+    data::{config::GameConfig, level::WallData},
     game::{
         assets::{HandleMap, ImageKey},
+        entity_type::EntityType,
         fixed_material::FixedMaterial,
+        object_size::ObjectSize,
         physics::{coll_groups, ObjectGroup},
     },
     screen::Screen,
 };
-use bevy::{color::palettes::css::WHITE, prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::{color::palettes::css::WHITE, math::vec2, prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
@@ -35,12 +37,15 @@ fn on_spawn_wall(
     material: Option<Res<WallMaterialHandle>>,
     materials: ResMut<Assets<FixedMaterial>>,
     image_handles: Res<HandleMap<ImageKey>>,
+    config: Res<GameConfig>,
 ) {
-    let material = ensure_material(cmd.reborrow(), material, materials, image_handles);
+    let material = ensure_material(cmd.reborrow(), material, materials, image_handles, config);
     let rect: Rect = trigger.event().1.rect.into();
     let translation = rect.center();
     cmd.spawn((
         Wall,
+        EntityType::Wall,
+        ObjectSize(rect.size()),
         RigidBody::Fixed,
         Collider::cuboid(rect.width() / 2.0, rect.height() / 2.0),
         Friction::new(1.0),
@@ -63,6 +68,7 @@ fn ensure_material(
     material: Option<Res<WallMaterialHandle>>,
     mut materials: ResMut<Assets<FixedMaterial>>,
     image_handles: Res<HandleMap<ImageKey>>,
+    config: Res<GameConfig>,
 ) -> Handle<FixedMaterial> {
     if let Some(mh) = material {
         mh.0.clone()
@@ -70,12 +76,8 @@ fn ensure_material(
         let material = FixedMaterial::new(
             WHITE,
             image_handles[&ImageKey::Wall].clone_weak(),
-            Vec2::splat(8.),
+            vec2(config.wall.scale_x, config.wall.scale_y),
         );
-        //     color: Color::from(WHITE).into(),
-        //     texture: image_handles[&ImageKey::Wall].clone_weak(),
-        //     texture_scale: Vec2::splat(8.).extend(0.0).extend(0.0),
-        // };
         let handle = materials.add(material);
         cmd.insert_resource(WallMaterialHandle(handle.clone()));
         handle

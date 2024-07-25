@@ -14,6 +14,7 @@ pub struct GameConfig {
     pub eyes: EyesConfig,
     pub editor: EditorConfig,
     pub background: BackgroundConfig,
+    pub wall: WallConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -97,6 +98,12 @@ pub struct EyesConfig {
 
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct BackgroundConfig {
+    pub scale_x: f32,
+    pub scale_y: f32,
+}
+
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct WallConfig {
     pub scale_x: f32,
     pub scale_y: f32,
 }

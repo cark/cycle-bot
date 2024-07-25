@@ -6,7 +6,7 @@ use bevy::{
     window::PrimaryWindow,
 };
 
-use crate::{screen::Screen, AppSet};
+use crate::{data::config::GameConfig, screen::Screen, AppSet};
 
 use super::{
     assets::{HandleMap, ImageKey},
@@ -37,8 +37,9 @@ fn spawn_background(
     image_handles: Res<HandleMap<ImageKey>>,
     meshes: ResMut<Assets<Mesh>>,
     bg_mesh_handle: Option<Res<BackgroundMeshHandle>>,
+    config: Res<GameConfig>,
 ) {
-    let material = ensure_material(cmd.reborrow(), material, materials, image_handles);
+    let material = ensure_material(cmd.reborrow(), material, materials, image_handles, config);
     let mesh = ensure_mesh(cmd.reborrow(), meshes, bg_mesh_handle);
     cmd.spawn((
         Background,
@@ -99,6 +100,7 @@ fn ensure_material(
     material: Option<Res<BackgroundMaterialHandle>>,
     mut materials: ResMut<Assets<FixedMaterial>>,
     image_handles: Res<HandleMap<ImageKey>>,
+    config: Res<GameConfig>,
 ) -> Handle<FixedMaterial> {
     if let Some(mh) = material {
         mh.0.clone()
@@ -106,13 +108,8 @@ fn ensure_material(
         let material = FixedMaterial::new(
             WHITE,
             image_handles[&ImageKey::Background].clone_weak(),
-            Vec2::splat(20.),
+            vec2(config.background.scale_x, config.background.scale_y),
         );
-        // FixedMaterial {
-        //     color: Color::from(WHITE).into(),
-        //     texture: image_handles[&ImageKey::Background].clone_weak(),
-        //     texture_scale: Vec2::splat(20.).extend(0.0).extend(0.0),
-        // };
         let handle = materials.add(material);
         cmd.insert_resource(BackgroundMaterialHandle(handle.clone()));
         handle

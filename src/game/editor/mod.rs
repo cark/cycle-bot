@@ -32,10 +32,6 @@ fn check_start_editor_mode(
 //     // commands.trigger(PlaySoundtrack::Disable);
 // }
 
-#[derive(Component)]
-#[component(storage = "SparseSet")]
-pub struct Highlight;
-
 #[derive(Default, Reflect, GizmoConfigGroup)]
 pub struct HighlightGizmos;
 

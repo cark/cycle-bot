@@ -12,8 +12,10 @@ pub mod background;
 pub mod camera;
 #[cfg(feature = "dev")]
 pub mod editor;
+pub mod entity_type;
 pub mod fixed_material;
 mod movement;
+pub mod object_size;
 pub mod physics;
 pub mod spawn;
 

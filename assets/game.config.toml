@@ -52,5 +52,11 @@ physics = false
 camera_speed = 1000.0
 
 [background]
+# scale_x = 40.0
+# scale_y = 40.0
 scale_x = 20.0
 scale_y = 20.0
+
+[wall]
+scale_x = 8.0
+scale_y = 8.0

@@ -23,12 +23,18 @@ use crate::{
 
 pub(super) fn plugin(app: &mut App) {
     // app.add_event::<SpawnArm>();
-    app.observe(spawn_player);
+    app.observe(on_spawn_player).observe(on_player_death);
     // app.observe(spawn_arm);
     app.register_type::<Player>();
     app.add_systems(
         Update,
-        (log_speed, check_touch_ground, calc_forces)
+        (
+            log_speed,
+            check_touch_ground,
+            calc_forces,
+            // check_arm_collision,
+            monitor_damage_contacts,
+        )
             .chain()
             .in_set(AppSet::RecordInput)
             .run_if(in_state(Screen::Playing)),
@@ -71,10 +77,6 @@ pub struct Tube;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
-pub struct Seat;
-
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
-#[reflect(Component)]
 pub struct Torso;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
@@ -98,9 +100,83 @@ pub struct Eyes;
 
 #[derive(Debug, Component)]
 #[component(storage = "SparseSet")]
+struct LiveArm;
+
+#[derive(Debug, Component)]
+#[component(storage = "SparseSet")]
+struct LiveTorso;
+
+#[derive(Debug, Component)]
+#[component(storage = "SparseSet")]
 struct PlayerOnGround;
 
-fn spawn_player(
+#[derive(Debug, Event)]
+struct PlayerDeath;
+
+fn on_player_death(
+    _trigger: Trigger<PlayerDeath>,
+    mut cmd: Commands,
+    q_arm: Query<Entity, With<Arm>>,
+    q_torso: Query<Entity, With<Torso>>,
+    mut q_head: Query<(Entity, &GlobalTransform, &mut Transform), With<Head>>,
+    q_wheel: Query<Entity, With<Wheel>>,
+    q_tube: Query<Entity, With<Tube>>,
+) {
+    warn!("process death");
+    for entity in &q_arm {
+        cmd.entity(entity)
+            .remove::<Arm>()
+            .remove::<LiveArm>()
+            .remove::<ImpulseJoint>();
+    }
+    for entity in &q_torso {
+        cmd.entity(entity)
+            .remove::<Torso>()
+            .remove::<LiveTorso>()
+            .remove::<ImpulseJoint>();
+    }
+    for (entity, gtr, mut tr) in &mut q_head {
+        cmd.entity(entity).remove::<Parent>();
+        *tr = gtr.compute_transform();
+    }
+    for entity in &q_wheel {
+        cmd.entity(entity)
+            .remove::<Wheel>()
+            .remove::<ImpulseJoint>();
+    }
+    for entity in &q_tube {
+        cmd.entity(entity).remove::<Tube>().remove::<ImpulseJoint>();
+    }
+}
+
+fn monitor_damage_contacts(
+    mut cmd: Commands,
+    mut contact_force_events: EventReader<ContactForceEvent>,
+    q_arm: Query<Entity, With<LiveArm>>,
+    q_torso: Query<Entity, With<LiveTorso>>,
+    config: Res<GameConfig>,
+) {
+    for event in contact_force_events.read() {
+        if let Ok(arm) = q_arm.get(event.collider1).or(q_arm.get(event.collider2)) {
+            if event.max_force_magnitude > config.arms.detach_force {
+                cmd.entity(arm).remove::<LiveArm>().remove::<ImpulseJoint>();
+            }
+            continue;
+        }
+        if let Ok(torso) = q_torso
+            .get(event.collider1)
+            .or(q_torso.get(event.collider2))
+        {
+            if event.max_force_magnitude > config.torso.death_force {
+                cmd.entity(torso).remove::<LiveTorso>();
+                cmd.trigger(PlayerDeath);
+            }
+            continue;
+        }
+    }
+}
+
+fn on_spawn_player(
     trigger: Trigger<SpawnPlayer>,
     mut cmd: Commands,
     config: Res<GameConfig>,
@@ -125,7 +201,7 @@ fn spawn_player(
                 Velocity::zero(),
                 coll_groups(ObjectGroup::PLAYER + ObjectGroup::WHEEL, ObjectGroup::WALL),
                 SpriteBundle {
-                    transform: Transform::from_xyz(0.0, 0.01, 0.0),
+                    transform: Transform::from_xyz(0.0, 0.00, 0.0),
                     texture: image_handles[&ImageKey::Wheel].clone_weak(),
                     sprite: Sprite {
                         custom_size: Some(vec2(2.0, 2.0)),
@@ -161,29 +237,34 @@ fn spawn_player(
         let body_translation = vec3(0.0, 1.0 + tube_length / 2.0, 0.0);
         let body = cmd
             .spawn((
-                Seat,
+                Torso,
+                LiveTorso,
                 RigidBody::Dynamic,
                 Collider::cuboid(config.torso.width / 2.0, config.torso.height / 2.0),
-                ColliderMassProperties::Mass(config.seat.mass),
+                ColliderMassProperties::Mass(config.torso.mass),
                 coll_groups(ObjectGroup::PLAYER, ObjectGroup::WALL),
                 ImpulseJoint::new(tube, seat_tube_joint),
                 Velocity::zero(),
-                GravityScale(config.seat.gravity_scale),
+                GravityScale(config.torso.gravity_scale),
                 SpriteBundle {
                     transform: Transform::from_translation(body_translation),
                     texture: image_handles[&ImageKey::Torso].clone_weak(),
                     sprite: Sprite {
-                        custom_size: Some(vec2(config.torso.width, config.torso.height)),
+                        custom_size: Some(vec2(
+                            config.torso.sprite_width,
+                            config.torso.sprite_height,
+                        )),
                         ..default()
                     },
                     ..default()
                 },
+                ActiveEvents::CONTACT_FORCE_EVENTS,
             ))
             .with_children(|cmd| {
                 cmd.spawn((
                     Head,
                     SpriteBundle {
-                        transform: Transform::from_xyz(config.head.x, config.head.y, 0.0),
+                        transform: Transform::from_xyz(config.head.x, config.head.y, 0.4),
                         texture: image_handles[&ImageKey::Head].clone_weak(),
                         sprite: Sprite {
                             custom_size: Some(vec2(config.head.width, config.head.height)),
@@ -223,6 +304,7 @@ fn spawn_player(
             );
             cmd.spawn((
                 Arm,
+                LiveArm,
                 RigidBody::Dynamic,
                 Collider::cuboid(config.arms.length / 2.0, config.arms.width / 2.0),
                 ImpulseJoint::new(body, socket_arm_joint),
@@ -242,7 +324,7 @@ fn spawn_player(
                     ..default()
                 },
                 ColliderMassProperties::Mass(config.arms.mass),
-                Dominance::group(-1),
+                ActiveEvents::CONTACT_FORCE_EVENTS,
             ));
         }
     });
@@ -251,9 +333,9 @@ fn spawn_player(
 fn calc_forces(
     input: Res<ButtonInput<KeyCode>>,
     mut cmd: Commands,
-    mut q_wheel: Query<(Entity, &mut Velocity), (With<Wheel>, Without<Tube>, Without<Seat>)>,
-    mut q_tube: Query<(Entity, &mut Velocity), (With<Tube>, Without<Wheel>, Without<Seat>)>,
-    mut q_seat: Query<(Entity, &mut Velocity), (With<Seat>, Without<Wheel>, Without<Tube>)>,
+    mut q_wheel: Query<(Entity, &mut Velocity), (With<Wheel>, Without<Tube>, Without<Torso>)>,
+    mut q_tube: Query<(Entity, &mut Velocity), (With<Tube>, Without<Wheel>, Without<Torso>)>,
+    mut q_seat: Query<(Entity, &mut Velocity), (With<Torso>, Without<Wheel>, Without<Tube>)>,
     q_player_on_ground: Query<Entity, With<PlayerOnGround>>,
     config: Res<GameConfig>,
 ) {

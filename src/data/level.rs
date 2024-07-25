@@ -62,6 +62,9 @@ impl MyRect {
     pub fn new(min: MyVec2, max: MyVec2) -> MyRect {
         Self { min, max }
     }
+    pub fn to_rect(&self) -> Rect {
+        (*self).into()
+    }
 }
 
 impl From<MyRect> for Rect {

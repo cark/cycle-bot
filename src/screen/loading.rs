@@ -60,7 +60,6 @@ fn complete_config(
         if let Some(game_config) = game_configs.remove(game_config_handle.0.id()) {
             cmd.insert_resource(game_config.wheel);
             cmd.insert_resource(game_config.tube);
-            cmd.insert_resource(game_config.seat);
             cmd.insert_resource(game_config);
         }
     }

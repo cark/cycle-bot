@@ -8,9 +8,11 @@ use crate::{data::config::GameConfig, screen::Screen};
 mod animation;
 pub mod assets;
 pub mod audio;
+pub mod background;
 pub mod camera;
 #[cfg(feature = "dev")]
 pub mod editor;
+pub mod fixed_material;
 mod movement;
 pub mod physics;
 pub mod spawn;
@@ -25,6 +27,8 @@ pub(super) fn plugin(app: &mut App) {
         movement::plugin,
         spawn::plugin,
         camera::plugin,
+        fixed_material::plugin,
+        background::plugin,
         #[cfg(feature = "dev")]
         editor::plugin,
     ));

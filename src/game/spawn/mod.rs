@@ -9,5 +9,5 @@ pub mod player;
 pub mod wall;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((level::plugin, player::plugin, wall::plugin));
+    app.add_plugins((player::plugin, wall::plugin, level::plugin));
 }

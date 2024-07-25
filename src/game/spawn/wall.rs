@@ -1,10 +1,13 @@
-// use 2d::prelude::*;
 use crate::{
     data::level::WallData,
-    game::physics::{coll_groups, ObjectGroup},
+    game::{
+        assets::{HandleMap, ImageKey},
+        fixed_material::FixedMaterial,
+        physics::{coll_groups, ObjectGroup},
+    },
     screen::Screen,
 };
-use bevy::{math::vec2, prelude::*};
+use bevy::{color::palettes::css::WHITE, prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 
@@ -21,9 +24,19 @@ pub struct SpawnWall(pub Uuid, pub WallData);
 #[derive(Component)]
 pub struct WallId(pub Uuid);
 
-fn on_spawn_wall(trigger: Trigger<SpawnWall>, mut cmd: Commands) {
+#[derive(Debug, Resource)]
+struct WallMaterialHandle(Handle<FixedMaterial>);
+
+fn on_spawn_wall(
+    trigger: Trigger<SpawnWall>,
+    mut cmd: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    material: Option<Res<WallMaterialHandle>>,
+    materials: ResMut<Assets<FixedMaterial>>,
+    image_handles: Res<HandleMap<ImageKey>>,
+) {
+    let material = ensure_material(cmd.reborrow(), material, materials, image_handles);
     let rect: Rect = trigger.event().1.rect.into();
-    // warn!("received uui {:#?}", trigger.event().0);
     let translation = rect.center();
     cmd.spawn((
         Wall,
@@ -31,19 +44,35 @@ fn on_spawn_wall(trigger: Trigger<SpawnWall>, mut cmd: Commands) {
         Collider::cuboid(rect.width() / 2.0, rect.height() / 2.0),
         Friction::new(1.0),
         StateScoped(Screen::Playing),
-        SpriteBundle {
-            sprite: Sprite {
-                color: Color::WHITE,
-                custom_size: Some(vec2(rect.width(), rect.height())),
-                ..default()
-            },
-            transform: Transform::from_translation(translation.extend(0.0)),
-            // .with_rotation(Quat::from_axis_angle(vec3(0.0, 0.0, 1.0), PI / 4.0)),
-            ..default()
-        },
         coll_groups(ObjectGroup::WALL, Group::all().bits()),
         WallId(trigger.event().0),
-        // #[cfg(feature = "dev")]
-        // DebugRender::default().with_collider_color(Color::srgb(0.0, 0.0, 1.0)),
+        MaterialMesh2dBundle {
+            material,
+            mesh: meshes
+                .add(Rectangle::new(rect.width(), rect.height()))
+                .into(),
+            transform: Transform::from_translation(translation.extend(0.0)),
+            ..default()
+        },
     ));
+}
+
+fn ensure_material(
+    mut cmd: Commands,
+    material: Option<Res<WallMaterialHandle>>,
+    mut materials: ResMut<Assets<FixedMaterial>>,
+    image_handles: Res<HandleMap<ImageKey>>,
+) -> Handle<FixedMaterial> {
+    if let Some(mh) = material {
+        mh.0.clone()
+    } else {
+        let material = FixedMaterial {
+            color: Color::from(WHITE).into(),
+            texture: image_handles[&ImageKey::Wall].clone_weak(),
+            texture_scale: Vec2::splat(8.),
+        };
+        let handle = materials.add(material);
+        cmd.insert_resource(WallMaterialHandle(handle.clone()));
+        handle
+    }
 }

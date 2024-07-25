@@ -22,6 +22,8 @@ pub enum ImageKey {
     Head,
     Arm,
     Eyes,
+    Wall,
+    Background,
 }
 
 impl AssetKey for ImageKey {
@@ -30,53 +32,38 @@ impl AssetKey for ImageKey {
 
 impl FromWorld for HandleMap<ImageKey> {
     fn from_world(world: &mut World) -> Self {
+        let nearest = |settings: &mut ImageLoaderSettings| {
+            settings.sampler = ImageSampler::nearest();
+        };
         let asset_server = world.resource::<AssetServer>();
         [
             (
                 ImageKey::Wheel,
-                asset_server.load_with_settings(
-                    "images/wheel.png",
-                    |settings: &mut ImageLoaderSettings| {
-                        // settings.is_srgb = false;
-                        settings.sampler = ImageSampler::nearest();
-                    },
-                ),
+                asset_server.load_with_settings("images/wheel.png", nearest),
             ),
             (
                 ImageKey::Torso,
-                asset_server.load_with_settings(
-                    "images/torso.png",
-                    |settings: &mut ImageLoaderSettings| {
-                        settings.sampler = ImageSampler::nearest();
-                    },
-                ),
+                asset_server.load_with_settings("images/torso.png", nearest),
             ),
             (
                 ImageKey::Head,
-                asset_server.load_with_settings(
-                    "images/head.png",
-                    |settings: &mut ImageLoaderSettings| {
-                        settings.sampler = ImageSampler::nearest();
-                    },
-                ),
+                asset_server.load_with_settings("images/head.png", nearest),
             ),
             (
                 ImageKey::Arm,
-                asset_server.load_with_settings(
-                    "images/arm.png",
-                    |settings: &mut ImageLoaderSettings| {
-                        settings.sampler = ImageSampler::nearest();
-                    },
-                ),
+                asset_server.load_with_settings("images/arm.png", nearest),
             ),
             (
                 ImageKey::Eyes,
-                asset_server.load_with_settings(
-                    "images/eyes.png",
-                    |settings: &mut ImageLoaderSettings| {
-                        settings.sampler = ImageSampler::nearest();
-                    },
-                ),
+                asset_server.load_with_settings("images/eyes.png", nearest),
+            ),
+            (
+                ImageKey::Wall,
+                asset_server.load_with_settings("images/wall.png", nearest),
+            ),
+            (
+                ImageKey::Background,
+                asset_server.load_with_settings("images/background.png", nearest),
             ),
         ]
         .into()

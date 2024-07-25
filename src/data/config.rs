@@ -5,7 +5,6 @@ use bevy::prelude::*;
 pub struct GameConfig {
     pub wheel: WheelConfig,
     pub tube: TubeConfig,
-    pub seat: SeatConfig,
     pub torso: TorsoConfig,
     pub jump_y_speed: f32,
     pub camera: CameraConfig,
@@ -14,6 +13,7 @@ pub struct GameConfig {
     pub arms: ArmsConfig,
     pub eyes: EyesConfig,
     pub editor: EditorConfig,
+    pub background: BackgroundConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -32,12 +32,6 @@ pub struct TubeConfig {
     pub length: f32,
 }
 
-#[derive(serde::Deserialize, Resource, Clone, Copy)]
-pub struct SeatConfig {
-    pub mass: f32,
-    pub gravity_scale: f32,
-}
-
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct CameraConfig {
     pub playing_scale_divisor: f32,
@@ -47,6 +41,11 @@ pub struct CameraConfig {
 pub struct TorsoConfig {
     pub width: f32,
     pub height: f32,
+    pub sprite_width: f32,
+    pub sprite_height: f32,
+    pub mass: f32,
+    pub gravity_scale: f32,
+    pub death_force: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]
@@ -56,6 +55,7 @@ pub struct DebugConfig {
 
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct ArmsConfig {
+    pub detach_force: f32,
     pub length: f32,
     pub width: f32,
     pub left: ArmConfig,
@@ -93,6 +93,12 @@ pub struct EyesConfig {
     pub y: f32,
     pub width: f32,
     pub height: f32,
+}
+
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct BackgroundConfig {
+    pub scale_x: f32,
+    pub scale_y: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]

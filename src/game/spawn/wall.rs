@@ -21,6 +21,7 @@ pub struct Wall;
 #[derive(Event)]
 pub struct SpawnWall(pub Uuid, pub WallData);
 
+#[allow(dead_code)]
 #[derive(Component)]
 pub struct WallId(pub Uuid);
 

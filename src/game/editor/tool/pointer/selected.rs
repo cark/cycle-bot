@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::{editor::tool::pointer::moving::MoveOp, object_size::ObjectSize},
+    data::level::LevelData,
+    game::{
+        editor::tool::pointer::moving::MoveOp, entity_id::EntityId, entity_type::EntityType,
+        object_size::ObjectSize,
+    },
     mouse::MouseWorldCoords,
     AppSet,
 };
@@ -12,25 +16,42 @@ use super::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.insert_resource(CurrentSelected(None));
-    app.add_systems(
+    app.insert_resource(CurrentSelected(None)).add_systems(
         Update,
-        (highlight_check, click_check)
+        (highlight_check, click_check, delete_check)
             .chain()
             .in_set(AppSet::RecordInput)
             .run_if(in_state(PointerState::Selected)),
     );
-
-    // app.add_systems(
-    //     Update,
-    //     show_resizing_gizmos
-    //         .in_set(AppSet::Update)
-    //         .run_if(in_state(PointerState::Selected)),
-    // );
 }
 
 #[derive(Debug, Resource)]
 pub struct CurrentSelected(pub Option<Entity>);
+
+fn delete_check(
+    mut cmd: Commands,
+    mut current_selected: ResMut<CurrentSelected>,
+    input: Res<ButtonInput<KeyCode>>,
+    q_entity: Query<(&EntityType, &EntityId)>,
+    mut level_data: ResMut<LevelData>,
+    mut next_state: ResMut<NextState<PointerState>>,
+) {
+    if let Some(entity) = current_selected.0 {
+        if input.just_pressed(KeyCode::Delete) {
+            if let Ok((e_type, e_id)) = q_entity.get(entity) {
+                #[allow(clippy::single_match)]
+                match e_type {
+                    EntityType::Wall => {
+                        level_data.walls.remove(&e_id.0);
+                        cmd.entity(entity).despawn_recursive();
+                        current_selected.0 = None;
+                        next_state.set(PointerState::Pointing);
+                    }
+                }
+            }
+        }
+    }
+}
 
 fn highlight_check(
     mouse_wc: Res<MouseWorldCoords>,

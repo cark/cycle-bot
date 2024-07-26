@@ -1,12 +1,12 @@
 [package]
-name = "car-loop"
+name = "cycle_bot"
 authors = ["Cark <carkhy@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 #, features = ["wayland"] 
-bevy = { version = "0.14"}
+bevy = { version = "0.14" }
 # Disable low-severity logs at compile time for performance.
 log = { version = "0.4", features = [
     "max_level_debug",

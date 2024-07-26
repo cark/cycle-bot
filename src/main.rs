@@ -2,7 +2,7 @@
 #![cfg_attr(not(feature = "dev"), windows_subsystem = "windows")]
 
 use bevy::prelude::*;
-use car_loop::AppPlugin;
+use cycle_bot::AppPlugin;
 
 fn main() -> AppExit {
     App::new().add_plugins(AppPlugin).run()

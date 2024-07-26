@@ -54,7 +54,7 @@ fn camera_pan(
     let Some(mouse_coords) = mouse_win_coords.0 else {
         return;
     };
-    const BORDER_RATIO: f32 = 1.0 / 5.0;
+    const BORDER_RATIO: f32 = 1.0 / 2.0;
     let window = q_window.single();
     let width_band = window.size().x * BORDER_RATIO;
     let height_band = window.size().y * BORDER_RATIO;

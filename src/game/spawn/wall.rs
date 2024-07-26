@@ -2,19 +2,29 @@ use crate::{
     data::{config::GameConfig, level::WallData},
     game::{
         assets::{HandleMap, ImageKey},
+        entity_id::EntityId,
         entity_type::EntityType,
         fixed_material::FixedMaterial,
-        object_size::ObjectSize,
+        object_size::{ObjectSize, RepositionRect},
         physics::{coll_groups, ObjectGroup},
     },
     screen::Screen,
 };
-use bevy::{color::palettes::css::WHITE, math::vec2, prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::{
+    color::palettes::css::WHITE,
+    math::vec2,
+    prelude::*,
+    render::view::NoFrustumCulling,
+    sprite::{MaterialMesh2dBundle, Mesh2dHandle},
+};
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
-
 pub(super) fn plugin(app: &mut App) {
-    app.observe(on_spawn_wall);
+    app.observe(on_spawn_wall).observe(on_reposition_wall);
+    // app.add_systems(
+    //     PostUpdate,
+    //     update_view_visibility.in_set(bevy::render::view::VisibilitySystems::CheckVisibility),
+    // );
 }
 
 #[derive(Debug, Component)]
@@ -23,12 +33,46 @@ pub struct Wall;
 #[derive(Event)]
 pub struct SpawnWall(pub Uuid, pub WallData);
 
-#[allow(dead_code)]
-#[derive(Component)]
-pub struct WallId(pub Uuid);
-
 #[derive(Debug, Resource)]
 struct WallMaterialHandle(Handle<FixedMaterial>);
+
+// fn update_view_visibility(
+//     mut q_walls: Query<(&Transform, &ObjectSize, &mut ViewVisibility)>,
+//     q_camera: Query<(&Transform, &OrthographicProjection), With<MainCamera>>,
+//     q_window: Query<&Window, With<PrimaryWindow>>,
+// ) {
+//     for (tr, size, mut view_visibility) in &mut q_walls {
+//         if let Ok((camera_transform, camera_projection)) = q_camera.get_single() {
+//             let rect = Rect::from_center_size(tr.translation.xy(), size.0);
+//             if let Ok(window) = q_window.get_single() {
+//                 warn!("got window");
+//                 let view_rect = Rect::from_center_size(
+//                     camera_transform.translation.xy(),
+//                     window.size() * camera_projection.scale,
+//                 );
+//                 if !rect.intersect(view_rect).is_empty() {
+//                     warn!("intersects");
+//                     view_visibility.set();
+//                 }
+//             }
+//         }
+//     }
+// }
+
+fn on_reposition_wall(
+    trigger: Trigger<RepositionRect>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut q_walls: Query<(&mut Transform, &mut ObjectSize, &Mesh2dHandle), With<Wall>>,
+) {
+    if let Ok((mut tr, mut size, mesh_handle)) = q_walls.get_mut(trigger.entity()) {
+        if let Some(mesh) = meshes.get_mut(mesh_handle.id()) {
+            let rect = trigger.event().rect;
+            size.0 = rect.size();
+            *mesh = Rectangle::new(rect.width(), rect.height()).into();
+            tr.translation = rect.center().extend(tr.translation.z);
+        }
+    }
+}
 
 fn on_spawn_wall(
     trigger: Trigger<SpawnWall>,
@@ -51,15 +95,16 @@ fn on_spawn_wall(
         Friction::new(1.0),
         StateScoped(Screen::Playing),
         coll_groups(ObjectGroup::WALL, Group::all().bits()),
-        WallId(trigger.event().0),
+        EntityId(trigger.event().0),
         MaterialMesh2dBundle {
             material,
             mesh: meshes
                 .add(Rectangle::new(rect.width(), rect.height()))
                 .into(),
-            transform: Transform::from_translation(translation.extend(0.0)),
+            transform: Transform::from_translation(translation.extend(-1.0)),
             ..default()
         },
+        NoFrustumCulling,
     ));
 }
 

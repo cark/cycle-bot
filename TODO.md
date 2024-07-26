@@ -1,4 +1,7 @@
-- [ ] editor
-  - [ ] screen pan
-- [ ] robot
-  - [ ] draw it
+- [] editor
+  - [*] screen pan
+- [] robot
+  - [*] draw it
+  - [] new graphics
+- [] background
+  - [] double parallax

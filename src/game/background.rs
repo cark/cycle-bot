@@ -83,7 +83,6 @@ fn update_material_pos(
 ) {
     for (tr, handle) in &q_background {
         if let Some(mat) = materials.get_mut(handle) {
-            warn!("handle! {:?}", tr.translation);
             mat.uniforms.pos = tr.translation.truncate();
         }
     }
@@ -120,10 +119,6 @@ fn ensure_material(
     if let Some(mh) = material {
         mh.0.clone()
     } else {
-        warn!(
-            "{:?}",
-            vec2(config.background.parallax_x, config.background.parallax_y),
-        );
         let material = FixedMaterial::new(
             WHITE,
             image_handles[&ImageKey::Background].clone_weak(),

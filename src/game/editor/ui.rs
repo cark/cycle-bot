@@ -4,6 +4,8 @@ use bevy_rapier2d::prelude::*;
 
 use crate::game::GameState;
 
+use super::tool::Tool;
+
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Editing), enter_editing);
     app.add_systems(
@@ -19,6 +21,7 @@ pub(super) fn plugin(app: &mut App) {
 enum EditorAction {
     Save,
     Back,
+    Add,
 }
 
 #[derive(Component)]
@@ -43,6 +46,7 @@ fn enter_editing(mut cmd: Commands, mut rapier_config: ResMut<RapierConfiguratio
             cmd.tool_bar().with_children(|cmd| {
                 cmd.button("Save").insert(EditorAction::Save);
                 cmd.button("Back").insert(EditorAction::Back);
+                cmd.button("Add").insert(EditorAction::Add);
                 cmd.text("tool: ").insert(ToolText);
                 //cmd.label("coucou");
             });
@@ -64,6 +68,7 @@ fn handle_editor_action(
     // mut next_screen: ResMut<NextState<Screen>>,
     mut button_query: InteractionQuery<&EditorAction>,
     mut next_game_state: ResMut<NextState<GameState>>,
+    mut next_tool: ResMut<NextState<Tool>>,
     level: Res<LevelData>,
     // #[cfg(not(target_family = "wasm"))] mut app_exit: EventWriter<AppExit>,
 ) {
@@ -72,6 +77,7 @@ fn handle_editor_action(
             match action {
                 EditorAction::Save => level.save(),
                 EditorAction::Back => next_game_state.set(GameState::Playing),
+                EditorAction::Add => next_tool.set(Tool::Add),
             }
         }
     }

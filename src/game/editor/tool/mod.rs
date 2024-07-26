@@ -1,3 +1,4 @@
+pub mod add;
 pub mod pointer;
 
 use bevy::prelude::*;
@@ -5,7 +6,7 @@ use bevy::prelude::*;
 use crate::game::{editor::ui::UpdateToolText, GameState};
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins(pointer::plugin);
+    app.add_plugins((pointer::plugin, add::plugin));
     app.add_sub_state::<Tool>();
     app.enable_state_scoped_entities::<Tool>();
     app.add_systems(Update, tool_change);
@@ -16,12 +17,14 @@ pub(super) fn plugin(app: &mut App) {
 pub enum Tool {
     #[default]
     Pointer,
+    Add,
 }
 
 impl Tool {
     pub fn name(&self) -> &'static str {
         match self {
             Tool::Pointer => "Pointer",
+            Tool::Add => "Add",
         }
     }
 }

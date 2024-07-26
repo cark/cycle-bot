@@ -104,6 +104,9 @@ fn on_spawn_wall(
             transform: Transform::from_translation(translation.extend(-1.0)),
             ..default()
         },
+        // there is some kind of a cache because when i change the size of a wall with the editor,
+        // it looks like it keeps the old bounds
+        #[cfg(feature = "dev")]
         NoFrustumCulling,
     ));
 }

@@ -5,7 +5,10 @@ use bevy::{
 };
 
 use crate::{
+    data::level::LevelData,
     game::{
+        entity_id::EntityId,
+        entity_type::EntityType,
         object_size::{ObjectSize, RepositionRect},
         spawn::wall::Wall,
     },
@@ -83,29 +86,34 @@ fn calc_resize(
     if let Some(resizing) = current_resizing.0 {
         if let Some(mouse) = mouse_wc.0 {
             if q_walls.get(resizing.handle.entity).is_ok() {
-                let (start_rect, mouse_start) = (resizing.start_rect, resizing.mouse_start);
-                let mouse_offset = mouse - mouse_start;
-                let new_rect = match resizing.handle.kind {
-                    HandleKind::TopLeft => Rect::from_corners(
-                        vec2(start_rect.min.x, start_rect.max.y) + mouse_offset,
-                        vec2(start_rect.max.x, start_rect.min.y),
-                    ),
-                    HandleKind::TopRight => Rect::from_corners(
-                        vec2(start_rect.max.x, start_rect.max.y) + mouse_offset,
-                        vec2(start_rect.min.x, start_rect.min.y),
-                    ),
-                    HandleKind::BottomLeft => Rect::from_corners(
-                        vec2(start_rect.min.x, start_rect.min.y) + mouse_offset,
-                        vec2(start_rect.max.x, start_rect.max.y),
-                    ),
-                    HandleKind::BottomRight => Rect::from_corners(
-                        vec2(start_rect.max.x, start_rect.min.y) + mouse_offset,
-                        vec2(start_rect.min.x, start_rect.max.y),
-                    ),
-                };
+                let new_rect = calc_resizing(resizing, mouse);
                 cmd.trigger_targets(RepositionRect { rect: new_rect }, resizing.handle.entity);
             }
         }
+    }
+}
+
+fn calc_resizing(resizing: Resizing, mouse: Vec2) -> Rect {
+    let (start_rect, mouse_start) = (resizing.start_rect, resizing.mouse_start);
+    let mouse_offset = mouse - mouse_start;
+
+    match resizing.handle.kind {
+        HandleKind::TopLeft => Rect::from_corners(
+            vec2(start_rect.min.x, start_rect.max.y) + mouse_offset,
+            vec2(start_rect.max.x, start_rect.min.y),
+        ),
+        HandleKind::TopRight => Rect::from_corners(
+            vec2(start_rect.max.x, start_rect.max.y) + mouse_offset,
+            vec2(start_rect.min.x, start_rect.min.y),
+        ),
+        HandleKind::BottomLeft => Rect::from_corners(
+            vec2(start_rect.min.x, start_rect.min.y) + mouse_offset,
+            vec2(start_rect.max.x, start_rect.max.y),
+        ),
+        HandleKind::BottomRight => Rect::from_corners(
+            vec2(start_rect.max.x, start_rect.min.y) + mouse_offset,
+            vec2(start_rect.min.x, start_rect.max.y),
+        ),
     }
 }
 
@@ -114,6 +122,9 @@ fn check_resizing_click(
     mut current_resizing: ResMut<CurrentResizing>,
     buttons: Res<ButtonInput<MouseButton>>,
     mut next_state: ResMut<NextState<PointerState>>,
+    mut level_data: ResMut<LevelData>,
+    q_entity: Query<(&EntityType, &EntityId)>,
+    mouse_wc: Res<MouseWorldCoords>,
 ) {
     if let Some(resizing) = current_resizing.0 {
         if buttons.just_pressed(MouseButton::Right) {
@@ -129,6 +140,20 @@ fn check_resizing_click(
         if buttons.just_pressed(MouseButton::Left) {
             current_resizing.0 = None;
             next_state.set(PointerState::Selected);
+            if let Ok((e_type, e_id)) = q_entity.get(resizing.handle.entity) {
+                if let Some(mouse) = mouse_wc.0 {
+                    #[allow(clippy::single_match)]
+                    match e_type {
+                        EntityType::Wall => {
+                            let wall = level_data
+                                .walls
+                                .get_mut(&e_id.0)
+                                .expect("this level wall data should exist");
+                            wall.rect = calc_resizing(resizing, mouse).into();
+                        }
+                    }
+                }
+            }
         }
     }
 }

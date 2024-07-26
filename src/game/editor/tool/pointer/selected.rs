@@ -1,18 +1,18 @@
 use bevy::prelude::*;
 
 use crate::{
-    data::level::LevelData,
+    data::{config::GameConfig, level::LevelData},
     game::{
         editor::tool::pointer::moving::MoveOp, entity_id::EntityId, entity_type::EntityType,
         object_size::ObjectSize,
     },
-    mouse::MouseWorldCoords,
+    mouse::MouseScreenCoords,
     AppSet,
 };
 
 use super::{
     moving::CurrentMove, pointing::CurrentHighlight, resizing::CurrentHighlightedHandle,
-    PointerState,
+    snap_to_grid, Pointer, PointerState,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -54,7 +54,7 @@ fn delete_check(
 }
 
 fn highlight_check(
-    mouse_wc: Res<MouseWorldCoords>,
+    mouse_wc: Res<MouseScreenCoords>,
     q_items: Query<(Entity, &ObjectSize, &GlobalTransform)>,
     mut current_highlight: ResMut<CurrentHighlight>,
 ) {
@@ -76,7 +76,9 @@ fn click_check(
     mut current_move: ResMut<CurrentMove>,
     mut next_state: ResMut<NextState<PointerState>>,
     q_entity: Query<&GlobalTransform>,
-    mouse_wc: Res<MouseWorldCoords>,
+    // mouse_wc: Res<MouseScreenCoords>,
+    pointer: Res<Pointer>,
+    config: Res<GameConfig>,
 ) {
     if buttons.just_pressed(MouseButton::Left) {
         let (highlight, selected, highlighted_handle) = (
@@ -93,10 +95,8 @@ fn click_check(
                     // warn!("move");
                     current_move.0 = Some(MoveOp {
                         entity: e,
-                        origin: gt.translation().truncate(),
-                        mouse_origin: mouse_wc
-                            .0
-                            .expect("mouse should be in window if we get here"),
+                        origin: snap_to_grid(gt.translation().truncate(), config.editor.grid_size),
+                        mouse_origin: pointer.0.expect("mouse should be in window if we get here"),
                     });
                     next_state.set(PointerState::Moving);
                 }

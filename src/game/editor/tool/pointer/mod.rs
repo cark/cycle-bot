@@ -4,10 +4,12 @@ pub mod resizing;
 pub mod selected;
 
 use crate::{
+    data::config::GameConfig,
     game::{
         editor::HighlightGizmos, entity_type::EntityType, object_size::ObjectSize,
-        spawn::wall::Wall,
+        spawn::wall::Wall, GameState,
     },
+    mouse::{update_mouse_coords, MouseScreenCoords},
     AppSet,
 };
 use bevy::{
@@ -22,21 +24,28 @@ use selected::CurrentSelected;
 use super::Tool;
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_sub_state::<PointerState>();
-    app.enable_state_scoped_entities::<PointerState>();
-    app.add_plugins((
-        pointing::plugin,
-        selected::plugin,
-        moving::plugin,
-        resizing::plugin,
-    ));
-    app.add_systems(
-        Update,
-        show_highlighted_gizmos
-            .in_set(AppSet::Update)
-            .run_if(in_state(PointerState::Pointing).or_else(in_state(PointerState::Selected))),
-    );
-    app.add_systems(OnExit(Tool::Pointer), clear_resources);
+    app.add_sub_state::<PointerState>()
+        .insert_resource(Pointer(None))
+        .enable_state_scoped_entities::<PointerState>()
+        .add_plugins((
+            pointing::plugin,
+            selected::plugin,
+            moving::plugin,
+            resizing::plugin,
+        ))
+        .add_systems(
+            Update,
+            (
+                show_highlighted_gizmos.in_set(AppSet::Update).run_if(
+                    in_state(PointerState::Pointing).or_else(in_state(PointerState::Selected)),
+                ),
+                update_pointer
+                    .after(update_mouse_coords)
+                    .in_set(AppSet::TickTimers)
+                    .run_if(in_state(GameState::Editing)),
+            ),
+        )
+        .add_systems(OnExit(Tool::Pointer), clear_resources);
 }
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
@@ -53,6 +62,22 @@ pub enum PointerState {
 enum GizmoType {
     Selected,
     Highlighted,
+}
+
+#[derive(Debug, Resource)]
+pub struct Pointer(Option<Vec2>);
+
+fn update_pointer(
+    mouse: Res<MouseScreenCoords>,
+    config: Res<GameConfig>,
+    mut pointer: ResMut<Pointer>,
+) {
+    let grid_size = config.editor.grid_size;
+    pointer.0 = mouse.0.map(|mouse_pos| snap_to_grid(mouse_pos, grid_size));
+}
+
+pub fn snap_to_grid(vec: Vec2, grid_size: f32) -> Vec2 {
+    (vec / grid_size).round() * grid_size
 }
 
 fn clear_resources(

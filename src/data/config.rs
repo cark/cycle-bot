@@ -113,6 +113,7 @@ pub struct WallConfig {
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct EditorConfig {
     pub camera_speed: f32,
+    pub grid_size: f32,
 }
 
 #[derive(Resource)]

@@ -50,6 +50,7 @@ physics = false
 
 [editor]
 camera_speed = 1000.0
+grid_size = 1.0
 
 [background]
 # scale_x = 40.0

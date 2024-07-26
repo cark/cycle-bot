@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use crate::{
     data::level::LevelData,
     game::{entity_id::EntityId, entity_type::EntityType, object_size::ObjectSize},
-    mouse::MouseWorldCoords,
     AppSet,
 };
 
@@ -26,7 +25,7 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-use super::PointerState;
+use super::{Pointer, PointerState};
 
 #[derive(Debug, Resource)]
 pub struct CurrentMove(pub Option<MoveOp>);
@@ -46,14 +45,15 @@ struct CancelMove;
 
 fn move_op(
     current_move: Res<CurrentMove>,
-    mouse_wc: Res<MouseWorldCoords>,
+    pointer: Res<Pointer>,
     mut q_item: Query<&mut Transform>,
 ) {
-    let (Some(mouse_pos), Some(cmove)) = (mouse_wc.0, current_move.0) else {
+    let (Some(mouse_pos), Some(cmove)) = (pointer.0, current_move.0) else {
         return;
     };
     if let Ok(mut tr) = q_item.get_mut(cmove.entity) {
         tr.translation = (cmove.origin + mouse_pos - cmove.mouse_origin).extend(tr.translation.z);
+        // info!("{}", tr.translation.xy());
     }
 }
 

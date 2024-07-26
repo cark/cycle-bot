@@ -4,7 +4,7 @@ use crate::{AppSet, MainCamera};
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(MouseWindowCoords(None))
-        .insert_resource(MouseWorldCoords(None));
+        .insert_resource(MouseScreenCoords(None));
     app.add_systems(Update, update_mouse_coords.in_set(AppSet::TickTimers));
 }
 
@@ -12,11 +12,11 @@ pub(super) fn plugin(app: &mut App) {
 pub struct MouseWindowCoords(pub Option<Vec2>);
 
 #[derive(Debug, Resource)]
-pub struct MouseWorldCoords(pub Option<Vec2>);
+pub struct MouseScreenCoords(pub Option<Vec2>);
 
-fn update_mouse_coords(
+pub fn update_mouse_coords(
     mut window_coords: ResMut<MouseWindowCoords>,
-    mut world_coords: ResMut<MouseWorldCoords>,
+    mut world_coords: ResMut<MouseScreenCoords>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     q_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
 ) {

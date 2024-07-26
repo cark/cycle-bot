@@ -5,18 +5,19 @@ use bevy::{
 };
 
 use crate::{
-    data::level::LevelData,
+    data::{config::GameConfig, level::LevelData},
     game::{
+        editor::tool::pointer::snap_to_grid,
         entity_id::EntityId,
         entity_type::EntityType,
         object_size::{ObjectSize, RepositionRect},
         spawn::wall::Wall,
     },
-    mouse::MouseWorldCoords,
+    mouse::MouseScreenCoords,
     AppSet, MainCamera,
 };
 
-use super::{selected::CurrentSelected, PointerState};
+use super::{selected::CurrentSelected, Pointer, PointerState};
 
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(CurrentHighlightedHandle(None));
@@ -79,12 +80,12 @@ fn clear_current_resizing(mut current_resizing: ResMut<CurrentResizing>) {
 
 fn calc_resize(
     mut cmd: Commands,
-    mouse_wc: Res<MouseWorldCoords>,
+    pointer: Res<Pointer>,
     current_resizing: ResMut<CurrentResizing>,
     q_walls: Query<Entity, With<Wall>>,
 ) {
     if let Some(resizing) = current_resizing.0 {
-        if let Some(mouse) = mouse_wc.0 {
+        if let Some(mouse) = pointer.0 {
             if q_walls.get(resizing.handle.entity).is_ok() {
                 let new_rect = calc_resizing(resizing, mouse);
                 cmd.trigger_targets(RepositionRect { rect: new_rect }, resizing.handle.entity);
@@ -124,7 +125,7 @@ fn check_resizing_click(
     mut next_state: ResMut<NextState<PointerState>>,
     mut level_data: ResMut<LevelData>,
     q_entity: Query<(&EntityType, &EntityId)>,
-    mouse_wc: Res<MouseWorldCoords>,
+    pointer: Res<Pointer>,
 ) {
     if let Some(resizing) = current_resizing.0 {
         if buttons.just_pressed(MouseButton::Right) {
@@ -141,7 +142,7 @@ fn check_resizing_click(
             current_resizing.0 = None;
             next_state.set(PointerState::Selected);
             if let Ok((e_type, e_id)) = q_entity.get(resizing.handle.entity) {
-                if let Some(mouse) = mouse_wc.0 {
+                if let Some(mouse) = pointer.0 {
                     #[allow(clippy::single_match)]
                     match e_type {
                         EntityType::Wall => {
@@ -162,19 +163,26 @@ fn check_click(
     highlighted_handle: Res<CurrentHighlightedHandle>,
     mut current_resizing: ResMut<CurrentResizing>,
     q_walls: Query<(&Transform, &ObjectSize), With<Wall>>,
-    mouse_wc: Res<MouseWorldCoords>,
+    pointer: Res<Pointer>,
     mut next_state: ResMut<NextState<PointerState>>,
     buttons: Res<ButtonInput<MouseButton>>,
+    config: Res<GameConfig>,
 ) {
     if buttons.just_pressed(MouseButton::Left) {
         if let Some(handle) = highlighted_handle.0 {
             if let Ok((tr, size)) = q_walls.get(handle.entity) {
-                if let Some(mouse) = mouse_wc.0 {
+                if let Some(pointer) = pointer.0 {
                     warn!("resizing");
+                    let rect = Rect::from_center_size(tr.translation.xy(), size.0);
+                    let grid_size = config.editor.grid_size;
+                    let rect = Rect::from_corners(
+                        snap_to_grid(rect.min, grid_size),
+                        snap_to_grid(rect.max, grid_size),
+                    );
                     current_resizing.0 = Some(Resizing {
                         handle,
-                        start_rect: Rect::from_center_size(tr.translation.xy(), size.0),
-                        mouse_start: mouse,
+                        start_rect: rect,
+                        mouse_start: pointer,
                     });
                     next_state.set(PointerState::Resizing);
                 }
@@ -185,7 +193,7 @@ fn check_click(
 
 fn check_highlighted(
     mut highlighted_handle: ResMut<CurrentHighlightedHandle>,
-    mouse_wc: Res<MouseWorldCoords>,
+    mouse_wc: Res<MouseScreenCoords>,
     current_selected: Res<CurrentSelected>,
     q_walls: Query<(&Transform, &ObjectSize), With<Wall>>,
     camera_query: Query<&OrthographicProjection, With<MainCamera>>,

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::object_size::ObjectSize, mouse::MouseWorldCoords, AppSet};
+use crate::{game::object_size::ObjectSize, mouse::MouseScreenCoords, AppSet};
 
 use super::{selected::CurrentSelected, PointerState};
 
@@ -19,7 +19,7 @@ pub(super) fn plugin(app: &mut App) {
 pub struct CurrentHighlight(pub Option<Entity>);
 
 fn highlight_check(
-    mouse_wc: Res<MouseWorldCoords>,
+    mouse_wc: Res<MouseScreenCoords>,
     q_items: Query<(Entity, &ObjectSize, &GlobalTransform)>,
     mut current_highlight: ResMut<CurrentHighlight>,
 ) {

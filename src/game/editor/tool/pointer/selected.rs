@@ -58,6 +58,18 @@ fn delete_check(
                         current_selected.0 = None;
                         next_state.set(PointerState::Pointing);
                     }
+                    EntityType::SpaceTutorial => {
+                        level_data.space_tutorials.remove(&e_id.0);
+                        cmd.entity(entity).despawn_recursive();
+                        current_selected.0 = None;
+                        next_state.set(PointerState::Pointing);
+                    }
+                    EntityType::ArrowTutorial => {
+                        level_data.arrow_tutorials.remove(&e_id.0);
+                        cmd.entity(entity).despawn_recursive();
+                        current_selected.0 = None;
+                        next_state.set(PointerState::Pointing);
+                    }
                 }
             }
         }

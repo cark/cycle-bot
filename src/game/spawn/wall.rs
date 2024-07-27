@@ -35,14 +35,23 @@ struct WallMaterialHandle(Handle<FixedMaterial>);
 fn on_reposition_wall(
     trigger: Trigger<RepositionRect>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut q_walls: Query<(&mut Transform, &mut ObjectSize, &Mesh2dHandle), With<Wall>>,
+    mut q_walls: Query<
+        (
+            &mut Transform,
+            &mut ObjectSize,
+            &Mesh2dHandle,
+            &mut Collider,
+        ),
+        With<Wall>,
+    >,
 ) {
-    if let Ok((mut tr, mut size, mesh_handle)) = q_walls.get_mut(trigger.entity()) {
+    if let Ok((mut tr, mut size, mesh_handle, mut collider)) = q_walls.get_mut(trigger.entity()) {
         if let Some(mesh) = meshes.get_mut(mesh_handle.id()) {
             let rect = trigger.event().rect;
             size.0 = rect.size();
             *mesh = Rectangle::new(rect.width(), rect.height()).into();
             tr.translation = rect.center().extend(tr.translation.z);
+            *collider = Collider::cuboid(rect.width() / 2.0, rect.height() / 2.0);
         }
     }
 }

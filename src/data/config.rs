@@ -18,6 +18,8 @@ pub struct GameConfig {
     pub wall: WallConfig,
     pub checkpoint: CheckpointConfig,
     pub goal: GoalConfig,
+    pub space_tutorial: SpaceTutorialConfig,
+    pub arrow_tutorial: ArrowTutorialConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -34,6 +36,7 @@ pub struct TubeConfig {
     pub angular_damping: f32,
     pub mass: f32,
     pub length: f32,
+    pub max_angular_velocity: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]
@@ -147,6 +150,16 @@ pub struct CheckpointConfig {
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct ColliderConfig {
     pub pos: PointConfig,
+    pub size: PointConfig,
+}
+
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct SpaceTutorialConfig {
+    pub size: PointConfig,
+}
+
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct ArrowTutorialConfig {
     pub size: PointConfig,
 }
 

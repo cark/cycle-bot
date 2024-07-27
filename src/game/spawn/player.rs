@@ -372,11 +372,18 @@ fn calc_forces(
             velocity.linvel.y += jump * config.jump_y_speed
         }
         for (tube, mut velocity) in &mut q_tube {
-            cmd.entity(tube).insert(ExternalImpulse {
-                // impulse: vec2(0.0, jump * config.wheel.jump_impulse),
-                impulse: Vec2::ZERO,
-                torque_impulse: torque_direction * config.tube.torque_multiplier,
-            });
+            let angular_velocity = velocity.angvel.abs();
+            // warn!("{}", angular_velocity);
+            if velocity.angvel.signum() != torque_direction.signum()
+                || angular_velocity < config.tube.max_angular_velocity
+            {
+                // warn!("tube : {:?}", a);
+                cmd.entity(tube).insert(ExternalImpulse {
+                    // impulse: vec2(0.0, jump * config.wheel.jump_impulse),
+                    impulse: Vec2::ZERO,
+                    torque_impulse: torque_direction * config.tube.torque_multiplier,
+                });
+            }
             velocity.linvel.y += jump * config.jump_y_speed;
         }
         for (seat, mut velocity) in &mut q_seat {

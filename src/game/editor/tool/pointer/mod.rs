@@ -143,7 +143,10 @@ fn draw_gizmo(
             EntityType::Wall => {
                 draw_sized_gizmo(q_sized, entity, gizmos, &gizmo_type);
             }
-            EntityType::Checkpoint | EntityType::Goal => {
+            EntityType::Checkpoint
+            | EntityType::Goal
+            | EntityType::SpaceTutorial
+            | EntityType::ArrowTutorial => {
                 draw_sprite_gizmo(q_sprite_entity, entity, gizmos, gizmo_type);
             }
         }

@@ -151,7 +151,10 @@ fn check_resizing_click(
                                 .expect("this level wall data should exist");
                             wall.rect = calc_resizing(resizing, mouse).into();
                         }
-                        EntityType::Checkpoint | EntityType::Goal => {}
+                        EntityType::Checkpoint
+                        | EntityType::Goal
+                        | EntityType::ArrowTutorial
+                        | EntityType::SpaceTutorial => {}
                     }
                 }
             }

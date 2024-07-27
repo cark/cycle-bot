@@ -5,4 +5,6 @@ pub enum EntityType {
     Wall,
     Checkpoint,
     Goal,
+    SpaceTutorial,
+    ArrowTutorial,
 }

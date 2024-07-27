@@ -5,6 +5,8 @@ use uuid::Uuid;
 pub struct LevelData {
     pub walls: HashMap<Uuid, WallData>,
     pub checkpoints: HashMap<Uuid, CheckpointData>,
+    pub arrow_tutorials: HashMap<Uuid, ArrowTutorialData>,
+    pub space_tutorials: HashMap<Uuid, SpaceTutorialData>,
     pub goals: HashMap<Uuid, GoalData>,
     pub player_spawn: MyVec2,
 }
@@ -33,6 +35,15 @@ pub struct WallData {
 
 #[derive(serde::Deserialize, serde::Serialize, Clone, Copy, Debug)]
 pub struct GoalData {
+    pub pos: MyVec2,
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Clone, Copy, Debug)]
+pub struct ArrowTutorialData {
+    pub pos: MyVec2,
+}
+#[derive(serde::Deserialize, serde::Serialize, Clone, Copy, Debug)]
+pub struct SpaceTutorialData {
     pub pos: MyVec2,
 }
 

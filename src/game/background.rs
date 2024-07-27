@@ -14,15 +14,13 @@ use super::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.observe(spawn_background)
-        // .insert_resource(BackgroundMaterialHandles::default());
-        .add_systems(
-            Update,
-            (scale_to_screen, update_material_pos)
-                .chain()
-                .in_set(AppSet::Update)
-                .run_if(in_state(Screen::Playing)),
-        );
+    app.observe(spawn_background).add_systems(
+        Update,
+        (scale_to_screen, update_material_pos)
+            .chain()
+            .in_set(AppSet::Update)
+            .run_if(in_state(Screen::Playing)),
+    );
 }
 
 #[derive(Component)]
@@ -103,48 +101,3 @@ fn update_material_pos(
         }
     }
 }
-
-// #[derive(Debug, Resource)]
-// struct BackgroundMeshHandle(Handle<Mesh>);
-
-// fn ensure_mesh(
-//     mut cmd: Commands,
-//     mut meshes: ResMut<Assets<Mesh>>,
-//     bg_mesh_handle: Option<Res<BackgroundMeshHandle>>,
-// ) -> Handle<Mesh> {
-//     if let Some(mh) = bg_mesh_handle {
-//         mh.0.clone()
-//     } else {
-//         let mesh = Rectangle::from_size(vec2(1.0, 1.0));
-//         let handle = meshes.add(mesh);
-//         cmd.insert_resource(BackgroundMeshHandle(handle.clone()));
-//         handle
-//     }
-// }
-
-// #[derive(Default, Resource)]
-// struct BackgroundMaterialHandles(HashMap<ImageKey, Handle<FixedMaterial>>);
-
-// fn ensure_material(
-//     material_handles: &mut ResMut<BackgroundMaterialHandles>,
-//     materials: &mut ResMut<Assets<FixedMaterial>>,
-//     image_handles: &Res<HandleMap<ImageKey>>,
-//     image_key: ImageKey,
-//     background_config: BackgroundConfig,
-//     //config: Res<GameConfig>,
-// ) -> Handle<FixedMaterial> {
-//     if let Some(mh) = material_handles.0.get(&image_key) {
-//         mh.clone()
-//     } else {
-// let material = FixedMaterial::new(
-//     WHITE,
-//     image_handles[&image_key].clone_weak(),
-//     vec2(background_config.scale_x, background_config.scale_y),
-//     vec2(background_config.parallax_x, background_config.parallax_y),
-// );
-//         let handle = materials.add(material);
-//         material_handles.0.insert(image_key, handle.clone());
-//         // cmd.insert_resource(BackgroundMaterialHandle(handle.clone()));
-//         handle
-//     }
-// }

@@ -92,6 +92,20 @@ fn on_commit_move(
                         .expect("this goal data should exist");
                     goal.pos = tr.translation.truncate().into();
                 }
+                EntityType::SpaceTutorial => {
+                    let space_tutorial = level_data
+                        .space_tutorials
+                        .get_mut(&e_id.0)
+                        .expect("this space tutorial data should exist");
+                    space_tutorial.pos = tr.translation.truncate().into();
+                }
+                EntityType::ArrowTutorial => {
+                    let arrow_tutorial = level_data
+                        .arrow_tutorials
+                        .get_mut(&e_id.0)
+                        .expect("this arrow tutorial data should exist");
+                    arrow_tutorial.pos = tr.translation.truncate().into();
+                }
             }
         }
     }
@@ -108,13 +122,11 @@ fn on_cancel_move(
     if let Some(ref mut move_op) = current_move.0 {
         if let Ok((mut tr, e_type)) = q_entity.get_mut(move_op.entity) {
             match e_type {
-                EntityType::Wall => {
-                    tr.translation = move_op.origin.extend(tr.translation.z);
-                }
-                EntityType::Checkpoint => {
-                    tr.translation = move_op.origin.extend(tr.translation.z);
-                }
-                EntityType::Goal => {
+                EntityType::Wall
+                | EntityType::ArrowTutorial
+                | EntityType::Checkpoint
+                | EntityType::Goal
+                | EntityType::SpaceTutorial => {
                     tr.translation = move_op.origin.extend(tr.translation.z);
                 }
             }

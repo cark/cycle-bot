@@ -28,6 +28,8 @@ pub enum ImageKey {
     CheckpointPost,
     CheckpointLight,
     Goal,
+    SpaceTutorial,
+    ArrowTutorial,
 }
 
 impl AssetKey for ImageKey {
@@ -84,6 +86,14 @@ impl FromWorld for HandleMap<ImageKey> {
             (
                 ImageKey::Goal,
                 asset_server.load_with_settings("images/goal.png", nearest),
+            ),
+            (
+                ImageKey::SpaceTutorial,
+                asset_server.load_with_settings("images/space_tutorial.png", nearest),
+            ),
+            (
+                ImageKey::ArrowTutorial,
+                asset_server.load_with_settings("images/arrow_tutorial.png", nearest),
             ),
         ]
         .into()

@@ -1,4 +1,8 @@
+
 jump_y_speed = 10.0
+
+[debug]
+physics = false
 
 [wheel]
 torque_multiplier = -1.6
@@ -9,6 +13,7 @@ linear_damping = 0.0
 torque_multiplier = 0.004
 angular_damping = 10.0
 linear_damping = 0.0
+max_angular_velocity = 2.0
 mass = 0.01
 length = 1.8
 
@@ -44,9 +49,6 @@ detach_force = 2.5
 mass = 0.001
 left.socket.point = { x = -0.9, y = 0.4 }
 right.socket.point = { x = 0.9, y = 0.4 }
-
-[debug]
-physics = true
 
 [editor]
 camera_speed = 1000.0
@@ -86,3 +88,9 @@ unlit_color = { r = 0.3, g = 0.3, b = 0.3 }
 size = { x = 15.0, y = 12.0 }
 collider.pos = { x = 0.0, y = 7.5 }
 collider.size = { x = 8.0, y = 12.0 }
+
+[space_tutorial]
+size = { x = 18.0, y = 5.7 }
+
+[arrow_tutorial]
+size = { x = 5.0, y = 2.5 }

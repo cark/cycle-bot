@@ -2,9 +2,14 @@ use super::{pointer::snap_to_grid, Tool};
 use crate::{
     data::{
         config::GameConfig,
-        level::{CheckpointData, GoalData, LevelData, WallData},
+        level::{
+            ArrowTutorialData, CheckpointData, GoalData, LevelData, SpaceTutorialData, WallData,
+        },
     },
-    game::{checkpoint::SpawnCheckpoint, goal::SpawnGoal, spawn::wall::SpawnWall},
+    game::{
+        arrow_tutorial::SpawnArrowTutorial, checkpoint::SpawnCheckpoint, goal::SpawnGoal,
+        space_tutorial::SpawnSpaceTutorial, spawn::wall::SpawnWall,
+    },
     ui::prelude::*,
     MainCamera,
 };
@@ -22,6 +27,8 @@ enum MenuAction {
     Wall,
     Checkpoint,
     Goal,
+    ArrowTutorial,
+    SpaceTutorial,
 }
 
 fn show_menu(mut cmd: Commands) {
@@ -31,6 +38,10 @@ fn show_menu(mut cmd: Commands) {
             cmd.button("Wall").insert(MenuAction::Wall);
             cmd.button("Checkpoint").insert(MenuAction::Checkpoint);
             cmd.button("Goal").insert(MenuAction::Goal);
+            cmd.button("Arrow tutorial")
+                .insert(MenuAction::ArrowTutorial);
+            cmd.button("Space tutorial")
+                .insert(MenuAction::SpaceTutorial);
         });
 }
 
@@ -72,6 +83,22 @@ fn handle_menu_action(
                         let data = GoalData { pos: point.into() };
                         level_data.goals.insert(uuid, data);
                         cmd.trigger(SpawnGoal(uuid, point));
+                    }
+                    MenuAction::ArrowTutorial => {
+                        let point =
+                            snap_to_grid(camera_tr.translation.xy(), config.editor.grid_size);
+                        let uuid = Uuid::new_v4();
+                        let data = ArrowTutorialData { pos: point.into() };
+                        level_data.arrow_tutorials.insert(uuid, data);
+                        cmd.trigger(SpawnArrowTutorial(uuid, point));
+                    }
+                    MenuAction::SpaceTutorial => {
+                        let point =
+                            snap_to_grid(camera_tr.translation.xy(), config.editor.grid_size);
+                        let uuid = Uuid::new_v4();
+                        let data = SpaceTutorialData { pos: point.into() };
+                        level_data.space_tutorials.insert(uuid, data);
+                        cmd.trigger(SpawnSpaceTutorial(uuid, point));
                     }
                 }
                 next_add_state.set(Tool::Pointer);

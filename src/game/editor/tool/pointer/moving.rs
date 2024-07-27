@@ -85,6 +85,13 @@ fn on_commit_move(
                         .expect("this level checkpoint data should exist");
                     checkpoint.pos = tr.translation.truncate().into();
                 }
+                EntityType::Goal => {
+                    let goal = level_data
+                        .goals
+                        .get_mut(&e_id.0)
+                        .expect("this goal data should exist");
+                    goal.pos = tr.translation.truncate().into();
+                }
             }
         }
     }
@@ -105,6 +112,9 @@ fn on_cancel_move(
                     tr.translation = move_op.origin.extend(tr.translation.z);
                 }
                 EntityType::Checkpoint => {
+                    tr.translation = move_op.origin.extend(tr.translation.z);
+                }
+                EntityType::Goal => {
                     tr.translation = move_op.origin.extend(tr.translation.z);
                 }
             }

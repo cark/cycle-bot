@@ -7,6 +7,7 @@ use crate::{
     game::{
         background::SpawnBackground,
         checkpoint::{CurrentActiveCheckpoint, SpawnCheckpoint},
+        goal::SpawnGoal,
     },
 };
 
@@ -44,5 +45,8 @@ fn spawn_level(
             uuid: *uuid,
             data: *checkpoint,
         });
+    }
+    for (uuid, goal) in &level.goals {
+        cmd.trigger(SpawnGoal(*uuid, goal.pos.into()));
     }
 }

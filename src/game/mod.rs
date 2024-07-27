@@ -16,6 +16,7 @@ pub mod editor;
 pub mod entity_id;
 pub mod entity_type;
 pub mod fixed_material;
+pub mod goal;
 mod movement;
 pub mod object_size;
 pub mod physics;
@@ -34,6 +35,7 @@ pub(super) fn plugin(app: &mut App) {
         fixed_material::plugin,
         background::plugin,
         checkpoint::plugin,
+        goal::plugin,
         #[cfg(feature = "dev")]
         editor::plugin,
     ));

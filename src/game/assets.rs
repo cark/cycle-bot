@@ -24,8 +24,10 @@ pub enum ImageKey {
     Eyes,
     Wall,
     Background,
+    Background2,
     CheckpointPost,
     CheckpointLight,
+    Goal,
 }
 
 impl AssetKey for ImageKey {
@@ -68,12 +70,20 @@ impl FromWorld for HandleMap<ImageKey> {
                 asset_server.load_with_settings("images/background.png", nearest),
             ),
             (
+                ImageKey::Background2,
+                asset_server.load_with_settings("images/background2.png", nearest),
+            ),
+            (
                 ImageKey::CheckpointPost,
                 asset_server.load_with_settings("images/checkpoint_post.png", nearest),
             ),
             (
                 ImageKey::CheckpointLight,
                 asset_server.load_with_settings("images/checkpoint_light.png", nearest),
+            ),
+            (
+                ImageKey::Goal,
+                asset_server.load_with_settings("images/goal.png", nearest),
             ),
         ]
         .into()

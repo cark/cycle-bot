@@ -5,10 +5,7 @@ pub mod selected;
 
 use crate::{
     data::config::GameConfig,
-    game::{
-        editor::HighlightGizmos, entity_type::EntityType, object_size::ObjectSize,
-        spawn::wall::Wall, GameState,
-    },
+    game::{editor::HighlightGizmos, entity_type::EntityType, object_size::ObjectSize, GameState},
     mouse::{update_mouse_coords, MouseScreenCoords},
     AppSet,
 };
@@ -96,7 +93,7 @@ fn show_highlighted_gizmos(
     // mut cmd: Commands,
     current_highlight: Res<CurrentHighlight>,
     current_selected: Res<CurrentSelected>,
-    q_walls: Query<(&Transform, &ObjectSize), With<Wall>>,
+    q_sized: Query<(&Transform, &ObjectSize)>,
     q_entity_type: Query<&EntityType>,
     q_sprite_entity: Query<(&Transform, &Sprite)>,
     mut gizmos: Gizmos<HighlightGizmos>,
@@ -105,7 +102,7 @@ fn show_highlighted_gizmos(
         draw_gizmo(
             entity,
             gizmo_type,
-            &q_walls,
+            &q_sized,
             &q_entity_type,
             &q_sprite_entity,
             &mut gizmos,
@@ -136,41 +133,59 @@ fn show_highlighted_gizmos(
 fn draw_gizmo(
     entity: Entity,
     gizmo_type: GizmoType,
-    q_walls: &Query<(&Transform, &ObjectSize), With<Wall>>,
+    q_sized: &Query<(&Transform, &ObjectSize)>,
     q_entity_type: &Query<&EntityType>,
     q_sprite_entity: &Query<(&Transform, &Sprite)>,
     gizmos: &mut Gizmos<HighlightGizmos>,
 ) {
-    match q_entity_type.get(entity) {
-        Ok(EntityType::Wall) => {
-            if let Ok((tr, size)) = q_walls.get(entity) {
-                gizmos.rect_2d(
-                    tr.translation.truncate(),
-                    tr.rotation.to_axis_angle().1,
-                    size.0,
-                    match gizmo_type {
-                        GizmoType::Selected => RED,
-                        GizmoType::Highlighted => GREEN,
-                    },
-                );
+    if let Ok(entity_type) = q_entity_type.get(entity) {
+        match entity_type {
+            EntityType::Wall => {
+                draw_sized_gizmo(q_sized, entity, gizmos, &gizmo_type);
+            }
+            EntityType::Checkpoint | EntityType::Goal => {
+                draw_sprite_gizmo(q_sprite_entity, entity, gizmos, gizmo_type);
             }
         }
-        Ok(EntityType::Checkpoint) => {
-            if let Ok((tr, sprite)) = q_sprite_entity.get(entity) {
-                if let Some(size) = sprite.custom_size {
-                    gizmos.rect_2d(
-                        tr.translation.truncate() - sprite.anchor.as_vec() * size,
-                        // tr.translation.truncate(),
-                        tr.rotation.to_axis_angle().1,
-                        size,
-                        match gizmo_type {
-                            GizmoType::Selected => RED,
-                            GizmoType::Highlighted => GREEN,
-                        },
-                    )
-                }
-            }
+    }
+}
+
+fn draw_sized_gizmo(
+    q_sized: &Query<(&Transform, &ObjectSize)>,
+    entity: Entity,
+    gizmos: &mut Gizmos<HighlightGizmos>,
+    gizmo_type: &GizmoType,
+) {
+    if let Ok((tr, size)) = q_sized.get(entity) {
+        gizmos.rect_2d(
+            tr.translation.truncate(),
+            tr.rotation.to_axis_angle().1,
+            size.0,
+            match *gizmo_type {
+                GizmoType::Selected => RED,
+                GizmoType::Highlighted => GREEN,
+            },
+        );
+    }
+}
+
+fn draw_sprite_gizmo(
+    q_sprite_entity: &Query<(&Transform, &Sprite)>,
+    entity: Entity,
+    gizmos: &mut Gizmos<HighlightGizmos>,
+    gizmo_type: GizmoType,
+) {
+    if let Ok((tr, sprite)) = q_sprite_entity.get(entity) {
+        if let Some(size) = sprite.custom_size {
+            gizmos.rect_2d(
+                tr.translation.truncate() - sprite.anchor.as_vec() * size,
+                tr.rotation.to_axis_angle().1,
+                size,
+                match gizmo_type {
+                    GizmoType::Selected => RED,
+                    GizmoType::Highlighted => GREEN,
+                },
+            )
         }
-        Err(_) => {}
     }
 }

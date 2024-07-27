@@ -2,9 +2,9 @@ use super::{pointer::snap_to_grid, Tool};
 use crate::{
     data::{
         config::GameConfig,
-        level::{CheckpointData, LevelData, WallData},
+        level::{CheckpointData, GoalData, LevelData, WallData},
     },
-    game::{checkpoint::SpawnCheckpoint, spawn::wall::SpawnWall},
+    game::{checkpoint::SpawnCheckpoint, goal::SpawnGoal, spawn::wall::SpawnWall},
     ui::prelude::*,
     MainCamera,
 };
@@ -21,6 +21,7 @@ pub(super) fn plugin(app: &mut App) {
 enum MenuAction {
     Wall,
     Checkpoint,
+    Goal,
 }
 
 fn show_menu(mut cmd: Commands) {
@@ -29,6 +30,7 @@ fn show_menu(mut cmd: Commands) {
         .with_children(|cmd| {
             cmd.button("Wall").insert(MenuAction::Wall);
             cmd.button("Checkpoint").insert(MenuAction::Checkpoint);
+            cmd.button("Goal").insert(MenuAction::Goal);
         });
 }
 
@@ -62,6 +64,14 @@ fn handle_menu_action(
                         let data = CheckpointData { pos: point.into() };
                         level_data.checkpoints.insert(uuid, data);
                         cmd.trigger(SpawnCheckpoint { uuid, data });
+                    }
+                    MenuAction::Goal => {
+                        let point =
+                            snap_to_grid(camera_tr.translation.xy(), config.editor.grid_size);
+                        let uuid = Uuid::new_v4();
+                        let data = GoalData { pos: point.into() };
+                        level_data.goals.insert(uuid, data);
+                        cmd.trigger(SpawnGoal(uuid, point));
                     }
                 }
                 next_add_state.set(Tool::Pointer);

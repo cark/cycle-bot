@@ -4,4 +4,5 @@ use bevy::prelude::*;
 pub enum EntityType {
     Wall,
     Checkpoint,
+    Goal,
 }

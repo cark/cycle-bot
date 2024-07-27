@@ -169,7 +169,7 @@ pub fn on_spawn_checkpoint(
                 config.checkpoint.collider.size.x / 2.0,
                 config.checkpoint.collider.size.y / 2.0,
             ),
-            ActiveEvents::COLLISION_EVENTS,
+            // ActiveEvents::COLLISION_EVENTS,
         ));
         cmd.spawn((
             CheckpointLight,

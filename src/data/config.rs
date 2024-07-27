@@ -14,8 +14,10 @@ pub struct GameConfig {
     pub eyes: EyesConfig,
     pub editor: EditorConfig,
     pub background: BackgroundConfig,
+    pub background2: BackgroundConfig,
     pub wall: WallConfig,
     pub checkpoint: CheckpointConfig,
+    pub goal: GoalConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -139,11 +141,11 @@ pub struct EditorConfig {
 pub struct CheckpointConfig {
     pub size: PointConfig,
     pub light: CheckpointLightConfig,
-    pub collider: CheckpointColliderConfig,
+    pub collider: ColliderConfig,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]
-pub struct CheckpointColliderConfig {
+pub struct ColliderConfig {
     pub pos: PointConfig,
     pub size: PointConfig,
 }
@@ -154,6 +156,12 @@ pub struct CheckpointLightConfig {
     pub pos: PointConfig,
     pub lit_color: ColorConfig,
     pub unlit_color: ColorConfig,
+}
+
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct GoalConfig {
+    pub size: PointConfig,
+    pub collider: ColliderConfig,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]

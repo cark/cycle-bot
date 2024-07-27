@@ -60,6 +60,12 @@ scale_y = 40.0
 parallax_x = 0.5
 parallax_y = 0.5
 
+[background2]
+scale_x = 75.0
+scale_y = 75.0
+parallax_x = 0.25
+parallax_y = 0.25
+
 [wall]
 scale_x = 4.0
 scale_y = 4.0
@@ -75,3 +81,8 @@ size = { x = 2.0, y = 2.0 }
 pos = { x = 0.0, y = 7.5 }
 lit_color = { r = 1.0, g = 1.0, b = 0.8 }
 unlit_color = { r = 0.3, g = 0.3, b = 0.3 }
+
+[goal]
+size = { x = 15.0, y = 12.0 }
+collider.pos = { x = 0.0, y = 7.5 }
+collider.size = { x = 8.0, y = 12.0 }

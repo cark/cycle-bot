@@ -10,6 +10,7 @@ pub mod assets;
 pub mod audio;
 pub mod background;
 pub mod camera;
+pub mod checkpoint;
 #[cfg(feature = "dev")]
 pub mod editor;
 pub mod entity_id;
@@ -32,6 +33,7 @@ pub(super) fn plugin(app: &mut App) {
         camera::plugin,
         fixed_material::plugin,
         background::plugin,
+        checkpoint::plugin,
         #[cfg(feature = "dev")]
         editor::plugin,
     ));

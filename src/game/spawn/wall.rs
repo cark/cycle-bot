@@ -21,43 +21,16 @@ use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 pub(super) fn plugin(app: &mut App) {
     app.observe(on_spawn_wall).observe(on_reposition_wall);
-    // app.add_systems(
-    //     PostUpdate,
-    //     update_view_visibility.in_set(bevy::render::view::VisibilitySystems::CheckVisibility),
-    // );
 }
 
 #[derive(Debug, Component)]
 pub struct Wall;
 
-#[derive(Event)]
+#[derive(Debug, Event)]
 pub struct SpawnWall(pub Uuid, pub WallData);
 
 #[derive(Debug, Resource)]
 struct WallMaterialHandle(Handle<FixedMaterial>);
-
-// fn update_view_visibility(
-//     mut q_walls: Query<(&Transform, &ObjectSize, &mut ViewVisibility)>,
-//     q_camera: Query<(&Transform, &OrthographicProjection), With<MainCamera>>,
-//     q_window: Query<&Window, With<PrimaryWindow>>,
-// ) {
-//     for (tr, size, mut view_visibility) in &mut q_walls {
-//         if let Ok((camera_transform, camera_projection)) = q_camera.get_single() {
-//             let rect = Rect::from_center_size(tr.translation.xy(), size.0);
-//             if let Ok(window) = q_window.get_single() {
-//                 warn!("got window");
-//                 let view_rect = Rect::from_center_size(
-//                     camera_transform.translation.xy(),
-//                     window.size() * camera_projection.scale,
-//                 );
-//                 if !rect.intersect(view_rect).is_empty() {
-//                     warn!("intersects");
-//                     view_visibility.set();
-//                 }
-//             }
-//         }
-//     }
-// }
 
 fn on_reposition_wall(
     trigger: Trigger<RepositionRect>,

@@ -2,7 +2,10 @@
 
 use bevy::prelude::*;
 
-use crate::{data::level::LevelData, game::background::SpawnBackground};
+use crate::{
+    data::level::LevelData,
+    game::{background::SpawnBackground, checkpoint::SpawnCheckpoint},
+};
 
 use super::{player::SpawnPlayer, wall::SpawnWall};
 
@@ -18,5 +21,11 @@ fn spawn_level(_trigger: Trigger<SpawnLevel>, mut cmd: Commands, level: Res<Leve
     cmd.trigger(SpawnPlayer(level.player_spawn.into()));
     for (uuid, wall) in &level.walls {
         cmd.trigger(SpawnWall(*uuid, *wall));
+    }
+    for (uuid, checkpoint) in &level.checkpoints {
+        cmd.trigger(SpawnCheckpoint {
+            uuid: *uuid,
+            data: *checkpoint,
+        });
     }
 }

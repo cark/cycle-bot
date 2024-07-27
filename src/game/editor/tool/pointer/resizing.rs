@@ -143,7 +143,6 @@ fn check_resizing_click(
             next_state.set(PointerState::Selected);
             if let Ok((e_type, e_id)) = q_entity.get(resizing.handle.entity) {
                 if let Some(mouse) = pointer.0 {
-                    #[allow(clippy::single_match)]
                     match e_type {
                         EntityType::Wall => {
                             let wall = level_data
@@ -152,6 +151,7 @@ fn check_resizing_click(
                                 .expect("this level wall data should exist");
                             wall.rect = calc_resizing(resizing, mouse).into();
                         }
+                        EntityType::Checkpoint => {}
                     }
                 }
             }

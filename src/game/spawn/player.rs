@@ -193,6 +193,7 @@ fn on_spawn_player(
                     },
                     ..default()
                 },
+                StateScoped(Screen::Playing),
             ))
             .id();
         let tube_length = config.tube.length;
@@ -213,6 +214,7 @@ fn on_spawn_player(
                 },
                 ColliderMassProperties::Mass(config.tube.mass),
                 Velocity::zero(),
+                StateScoped(Screen::Playing),
             ))
             .id();
         let seat_tube_joint = FixedJointBuilder::new()
@@ -243,6 +245,7 @@ fn on_spawn_player(
                     ..default()
                 },
                 ActiveEvents::CONTACT_FORCE_EVENTS,
+                StateScoped(Screen::Playing),
             ))
             .with_children(|cmd| {
                 cmd.spawn((
@@ -256,6 +259,7 @@ fn on_spawn_player(
                         },
                         ..default()
                     },
+                    StateScoped(Screen::Playing),
                 ))
                 .with_children(|cmd| {
                     cmd.spawn((
@@ -309,6 +313,7 @@ fn on_spawn_player(
                 },
                 ColliderMassProperties::Mass(config.arms.mass),
                 ActiveEvents::CONTACT_FORCE_EVENTS,
+                StateScoped(Screen::Playing),
             ));
         }
     });

@@ -62,18 +62,28 @@ fn on_commit_move(
     mut current_move: ResMut<CurrentMove>,
     mut level_data: ResMut<LevelData>,
     mut next_state: ResMut<NextState<PointerState>>,
-    q_entity: Query<(&Transform, &EntityType, &EntityId, &ObjectSize)>,
+    q_sized: Query<&ObjectSize>,
+    q_entity: Query<(&Transform, &EntityType, &EntityId)>,
 ) {
     if let Some(ref mut move_op) = current_move.0 {
-        if let Ok((tr, e_type, e_id, o_size)) = q_entity.get(move_op.entity) {
-            #[allow(clippy::single_match)]
+        if let Ok((tr, e_type, e_id)) = q_entity.get(move_op.entity) {
             match e_type {
                 EntityType::Wall => {
+                    let size = q_sized
+                        .get(move_op.entity)
+                        .expect("The wall should have an ObjectSize");
                     let wall = level_data
                         .walls
                         .get_mut(&e_id.0)
                         .expect("this level wall data should exist");
-                    wall.rect = Rect::from_center_size(tr.translation.truncate(), o_size.0).into();
+                    wall.rect = Rect::from_center_size(tr.translation.truncate(), size.0).into();
+                }
+                EntityType::Checkpoint => {
+                    let checkpoint = level_data
+                        .checkpoints
+                        .get_mut(&e_id.0)
+                        .expect("this level checkpoint data should exist");
+                    checkpoint.pos = tr.translation.truncate().into();
                 }
             }
         }
@@ -86,13 +96,15 @@ fn on_cancel_move(
     _trigger: Trigger<CancelMove>,
     mut current_move: ResMut<CurrentMove>,
     mut next_state: ResMut<NextState<PointerState>>,
-    mut q_entity: Query<(&mut Transform, &EntityType, &EntityId, &ObjectSize)>,
+    mut q_entity: Query<(&mut Transform, &EntityType)>,
 ) {
     if let Some(ref mut move_op) = current_move.0 {
-        if let Ok((mut tr, e_type, ..)) = q_entity.get_mut(move_op.entity) {
-            #[allow(clippy::match_single_binding)]
+        if let Ok((mut tr, e_type)) = q_entity.get_mut(move_op.entity) {
             match e_type {
                 EntityType::Wall => {
+                    tr.translation = move_op.origin.extend(tr.translation.z);
+                }
+                EntityType::Checkpoint => {
                     tr.translation = move_op.origin.extend(tr.translation.z);
                 }
             }

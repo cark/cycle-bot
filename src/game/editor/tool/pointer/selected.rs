@@ -39,10 +39,15 @@ fn delete_check(
     if let Some(entity) = current_selected.0 {
         if input.just_pressed(KeyCode::Delete) {
             if let Ok((e_type, e_id)) = q_entity.get(entity) {
-                #[allow(clippy::single_match)]
                 match e_type {
                     EntityType::Wall => {
                         level_data.walls.remove(&e_id.0);
+                        cmd.entity(entity).despawn_recursive();
+                        current_selected.0 = None;
+                        next_state.set(PointerState::Pointing);
+                    }
+                    EntityType::Checkpoint => {
+                        level_data.checkpoints.remove(&e_id.0);
                         cmd.entity(entity).despawn_recursive();
                         current_selected.0 = None;
                         next_state.set(PointerState::Pointing);
@@ -55,14 +60,34 @@ fn delete_check(
 
 fn highlight_check(
     mouse_wc: Res<MouseScreenCoords>,
-    q_items: Query<(Entity, &ObjectSize, &GlobalTransform)>,
+    q_sized: Query<(Entity, &ObjectSize, &GlobalTransform)>,
+    q_sprite: Query<(Entity, &Sprite, &GlobalTransform)>,
     mut current_highlight: ResMut<CurrentHighlight>,
 ) {
     let Some(point) = mouse_wc.0 else { return };
-    for (e, ObjectSize(size), gt) in &q_items {
+    for (e, ObjectSize(size), gt) in &q_sized {
         if Rect::from_center_size(gt.translation().truncate(), *size).contains(point) {
             current_highlight.0 = Some(e);
             return;
+        }
+    }
+    for (
+        e,
+        Sprite {
+            custom_size,
+            anchor,
+            ..
+        },
+        gt,
+    ) in &q_sprite
+    {
+        if let Some(size) = custom_size {
+            if Rect::from_center_size(gt.translation().truncate() - anchor.as_vec() * *size, *size)
+                .contains(point)
+            {
+                current_highlight.0 = Some(e);
+                return;
+            }
         }
     }
     current_highlight.0 = None;
@@ -92,7 +117,7 @@ fn click_check(
         if let Some(e) = highlight {
             if highlight == selected {
                 if let Ok(gt) = q_entity.get(e) {
-                    // warn!("move");
+                    warn!("move");
                     current_move.0 = Some(MoveOp {
                         entity: e,
                         origin: snap_to_grid(gt.translation().truncate(), config.editor.grid_size),
@@ -112,20 +137,3 @@ fn click_check(
         }
     }
 }
-
-// fn show_resizing_gizmos(
-//     current_selected: Res<CurrentSelected>,
-//     mut gizmos: Gizmos,
-//     q_walls: Query<(&Transform, &ObjectSize), With<Wall>>,
-//     q_entity_type: Query<&EntityType>,
-// ) {
-//     if let Some(selected) = current_selected.0 {
-//         #[allow(clippy::single_match)]
-//         match q_entity_type.get(selected) {
-//             Ok(EntityType::Wall) => if let Ok((tr, size)) = q_walls.get(selected) {
-//                 gizmos.rect_2d(tr.translation.truncate(), 0.0, size.0, color)
-//             },
-//             Err(_) => {}
-//         }
-//     }
-// }

@@ -98,10 +98,18 @@ fn show_highlighted_gizmos(
     current_selected: Res<CurrentSelected>,
     q_walls: Query<(&Transform, &ObjectSize), With<Wall>>,
     q_entity_type: Query<&EntityType>,
+    q_sprite_entity: Query<(&Transform, &Sprite)>,
     mut gizmos: Gizmos<HighlightGizmos>,
 ) {
     let mut gizmo = |gizmo_type: GizmoType, entity: Entity| {
-        draw_gizmo(entity, gizmo_type, &q_walls, &q_entity_type, &mut gizmos);
+        draw_gizmo(
+            entity,
+            gizmo_type,
+            &q_walls,
+            &q_entity_type,
+            &q_sprite_entity,
+            &mut gizmos,
+        );
     };
     match (current_highlight.0, current_selected.0) {
         (None, None) => {}
@@ -130,17 +138,12 @@ fn draw_gizmo(
     gizmo_type: GizmoType,
     q_walls: &Query<(&Transform, &ObjectSize), With<Wall>>,
     q_entity_type: &Query<&EntityType>,
+    q_sprite_entity: &Query<(&Transform, &Sprite)>,
     gizmos: &mut Gizmos<HighlightGizmos>,
 ) {
-    // warn!("on draw gizmo");
-    #[allow(clippy::single_match)]
     match q_entity_type.get(entity) {
         Ok(EntityType::Wall) => {
-            // warn!("wall");
-            // warn!("{:?}", entity);
             if let Ok((tr, size)) = q_walls.get(entity) {
-                // warn!("got it {:?}", size);
-                // let tr = tr.compute_transform();
                 gizmos.rect_2d(
                     tr.translation.truncate(),
                     tr.rotation.to_axis_angle().1,
@@ -150,6 +153,22 @@ fn draw_gizmo(
                         GizmoType::Highlighted => GREEN,
                     },
                 );
+            }
+        }
+        Ok(EntityType::Checkpoint) => {
+            if let Ok((tr, sprite)) = q_sprite_entity.get(entity) {
+                if let Some(size) = sprite.custom_size {
+                    gizmos.rect_2d(
+                        tr.translation.truncate() - sprite.anchor.as_vec() * size,
+                        // tr.translation.truncate(),
+                        tr.rotation.to_axis_angle().1,
+                        size,
+                        match gizmo_type {
+                            GizmoType::Selected => RED,
+                            GizmoType::Highlighted => GREEN,
+                        },
+                    )
+                }
             }
         }
         Err(_) => {}

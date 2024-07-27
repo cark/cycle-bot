@@ -20,14 +20,35 @@ pub struct CurrentHighlight(pub Option<Entity>);
 
 fn highlight_check(
     mouse_wc: Res<MouseScreenCoords>,
-    q_items: Query<(Entity, &ObjectSize, &GlobalTransform)>,
+    q_sized: Query<(Entity, &ObjectSize, &GlobalTransform)>,
+    q_sprites: Query<(Entity, &Sprite, &GlobalTransform)>,
     mut current_highlight: ResMut<CurrentHighlight>,
 ) {
     let Some(point) = mouse_wc.0 else { return };
-    for (e, ObjectSize(size), gt) in &q_items {
+    for (e, ObjectSize(size), gt) in &q_sized {
         if Rect::from_center_size(gt.translation().truncate(), *size).contains(point) {
             current_highlight.0 = Some(e);
             return;
+        }
+    }
+    for (
+        e,
+        Sprite {
+            custom_size,
+            anchor,
+            ..
+        },
+        gt,
+    ) in &q_sprites
+    {
+        if let Some(size) = custom_size {
+            if Rect::from_center_size(gt.translation().truncate() - anchor.as_vec() * *size, *size)
+                .contains(point)
+            {
+                // warn!("yoh");
+                current_highlight.0 = Some(e);
+                return;
+            }
         }
     }
     current_highlight.0 = None;

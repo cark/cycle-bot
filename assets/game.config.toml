@@ -46,7 +46,7 @@ left.socket.point = { x = -0.9, y = 0.4 }
 right.socket.point = { x = 0.9, y = 0.4 }
 
 [debug]
-physics = false
+physics = true
 
 [editor]
 camera_speed = 1000.0
@@ -63,3 +63,15 @@ parallax_y = 0.5
 [wall]
 scale_x = 4.0
 scale_y = 4.0
+
+[checkpoint]
+size = { x = 1.5, y = 7.0 }
+collider.pos = { x = 0.0, y = 3.5 }
+collider.size = { x = 1.5, y = 7.0 }
+
+
+[checkpoint.light]
+size = { x = 2.0, y = 2.0 }
+pos = { x = 0.0, y = 7.5 }
+lit_color = { r = 1.0, g = 1.0, b = 0.8 }
+unlit_color = { r = 0.3, g = 0.3, b = 0.3 }

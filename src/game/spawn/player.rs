@@ -14,6 +14,7 @@ use crate::{
     game::{
         assets::{HandleMap, ImageKey},
         camera::CenterCamera,
+        checkpoint::{Checkpoint, CurrentActiveCheckpoint},
         physics::{coll_groups, ObjectGroup},
         GameState,
     },
@@ -30,6 +31,7 @@ pub(super) fn plugin(app: &mut App) {
             log_speed,
             check_touch_ground,
             calc_forces,
+            check_respawn,
             monitor_damage_contacts,
         )
             .chain()
@@ -317,6 +319,26 @@ fn on_spawn_player(
             ));
         }
     });
+}
+
+fn check_respawn(
+    input: Res<ButtonInput<KeyCode>>,
+    mut cmd: Commands,
+    q_player: Query<Entity, With<Player>>,
+    current_active_checkpoint: Res<CurrentActiveCheckpoint>,
+    q_checkpopint: Query<&Transform, With<Checkpoint>>,
+    //config: Res<GameConfig>,
+) {
+    if input.just_pressed(KeyCode::KeyR) {
+        for e in &q_player {
+            cmd.entity(e).despawn_recursive();
+        }
+        if let Some(ref active_checkpoint) = current_active_checkpoint.0 {
+            if let Ok(tr) = q_checkpopint.get(active_checkpoint.entity) {
+                cmd.trigger(SpawnPlayer(tr.translation.xy() + vec2(0.0, 1.0)));
+            }
+        }
+    }
 }
 
 fn calc_forces(

@@ -47,8 +47,8 @@ pub struct SpawnCheckpoint {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ActiveCheckpoint {
-    entity: Entity,
-    eid: EntityId,
+    pub entity: Entity,
+    pub eid: EntityId,
 }
 
 #[derive(Debug, Event)]
@@ -58,18 +58,19 @@ pub struct ActivateCheckpoint(EntityId);
 pub struct DeactivateCheckpoint(EntityId);
 
 #[derive(Debug, Resource)]
-pub struct CurrentActiveCheckpoint(Option<ActiveCheckpoint>);
+pub struct CurrentActiveCheckpoint(pub Option<ActiveCheckpoint>);
 
 pub fn check_player_collision(
     mut cmd: Commands,
     rapier_context: Res<RapierContext>,
-    q_torso: Query<(&Transform, &Collider), With<Torso>>,
+    q_torso: Query<(&GlobalTransform, &Collider), With<Torso>>,
     active_checkpoint: Res<CurrentActiveCheckpoint>,
     q_checkpoint_colliders: Query<&Parent, With<CheckpointCollider>>,
     q_checkpoint: Query<&EntityId, With<Checkpoint>>,
 ) {
     for (body_tr, body_collider) in &q_torso {
         let shape = body_collider;
+        let body_tr = body_tr.compute_transform();
         let shape_pos = body_tr.translation.xy();
         let shape_rot = body_tr.rotation.to_axis_angle().1;
         let filter = QueryFilter::default()

@@ -80,6 +80,6 @@ fn all_assets_loaded(
 }
 
 fn continue_to_title(mut next_screen: ResMut<NextState<Screen>>) {
-    next_screen.set(Screen::Playing);
-    // next_screen.set(Screen::Title);
+    // next_screen.set(Screen::Playing);
+    next_screen.set(Screen::Title);
 }

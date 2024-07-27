@@ -1,17 +1,5 @@
 (
     walls: {
-        "eb8afc87-cbad-49fb-9b1e-c52b4f19c4b4": (
-            rect: (
-                min: (
-                    x: -9.0,
-                    y: -3.0,
-                ),
-                max: (
-                    x: 88.0,
-                    y: 0.0,
-                ),
-            ),
-        ),
         "441c31c0-4dc7-45a3-bfcc-e7a1f63b6a62": (
             rect: (
                 min: (
@@ -36,8 +24,26 @@
                 ),
             ),
         ),
+        "eb8afc87-cbad-49fb-9b1e-c52b4f19c4b4": (
+            rect: (
+                min: (
+                    x: -9.0,
+                    y: -3.0,
+                ),
+                max: (
+                    x: 88.0,
+                    y: 0.0,
+                ),
+            ),
+        ),
     },
     checkpoints: {
+        "036f93aa-a4e9-4296-ab68-59b509f8ab4e": (
+            pos: (
+                x: 38.0,
+                y: 5.0,
+            ),
+        ),
         "bda42127-57e0-449c-ad69-8f1308016ff7": (
             pos: (
                 x: 0.0,

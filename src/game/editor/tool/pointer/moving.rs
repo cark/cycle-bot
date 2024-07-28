@@ -106,6 +106,13 @@ fn on_commit_move(
                         .expect("this arrow tutorial data should exist");
                     arrow_tutorial.pos = tr.translation.truncate().into();
                 }
+                EntityType::Arrow => {
+                    let arrow = level_data
+                        .arrows
+                        .get_mut(&e_id.0)
+                        .expect("this arrow data should exist");
+                    arrow.pos = tr.translation.truncate().into();
+                }
             }
         }
     }
@@ -126,7 +133,8 @@ fn on_cancel_move(
                 | EntityType::ArrowTutorial
                 | EntityType::Checkpoint
                 | EntityType::Goal
-                | EntityType::SpaceTutorial => {
+                | EntityType::SpaceTutorial
+                | EntityType::Arrow => {
                     tr.translation = move_op.origin.extend(tr.translation.z);
                 }
             }

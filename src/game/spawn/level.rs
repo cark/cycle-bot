@@ -5,6 +5,7 @@ use bevy::{math::vec2, prelude::*};
 use crate::{
     data::level::LevelData,
     game::{
+        arrow::SpawnArrow,
         arrow_tutorial::SpawnArrowTutorial,
         background::SpawnBackground,
         checkpoint::{CurrentActiveCheckpoint, SpawnCheckpoint},
@@ -56,5 +57,12 @@ fn spawn_level(
     }
     for (uuid, arrow_tutorial) in &level.arrow_tutorials {
         cmd.trigger(SpawnArrowTutorial(*uuid, arrow_tutorial.pos.into()));
+    }
+    for (uuid, arrow) in &level.arrows {
+        cmd.trigger(SpawnArrow {
+            uuid: *uuid,
+            angle: arrow.angle,
+            pos: arrow.pos.into(),
+        });
     }
 }

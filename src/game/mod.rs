@@ -6,8 +6,10 @@ use bevy_rapier2d::{plugin::RapierConfiguration, render::DebugRenderContext};
 use crate::{data::config::GameConfig, screen::Screen};
 
 mod animation;
+pub mod arrow;
 pub mod arrow_tutorial;
 pub mod assets;
+pub mod atlas_animation;
 pub mod audio;
 pub mod background;
 pub mod camera;
@@ -42,6 +44,8 @@ pub(super) fn plugin(app: &mut App) {
         victory::plugin,
         space_tutorial::plugin,
         arrow_tutorial::plugin,
+        arrow::plugin,
+        atlas_animation::plugin,
         #[cfg(feature = "dev")]
         editor::plugin,
     ));

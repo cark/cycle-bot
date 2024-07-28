@@ -8,6 +8,7 @@ pub struct LevelData {
     pub arrow_tutorials: HashMap<Uuid, ArrowTutorialData>,
     pub space_tutorials: HashMap<Uuid, SpaceTutorialData>,
     pub goals: HashMap<Uuid, GoalData>,
+    pub arrows: HashMap<Uuid, ArrowData>,
     pub player_spawn: MyVec2,
 }
 
@@ -26,6 +27,11 @@ pub struct LevelDataHandle(pub Handle<LevelData>);
 #[derive(serde::Deserialize, serde::Serialize, Clone, Copy, Debug)]
 pub struct CheckpointData {
     pub pos: MyVec2,
+}
+#[derive(serde::Deserialize, serde::Serialize, Clone, Copy, Debug)]
+pub struct ArrowData {
+    pub pos: MyVec2,
+    pub angle: f32,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Clone, Copy, Debug)]

@@ -7,4 +7,5 @@ pub enum EntityType {
     Goal,
     SpaceTutorial,
     ArrowTutorial,
+    Arrow,
 }

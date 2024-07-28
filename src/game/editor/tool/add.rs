@@ -3,12 +3,13 @@ use crate::{
     data::{
         config::GameConfig,
         level::{
-            ArrowTutorialData, CheckpointData, GoalData, LevelData, SpaceTutorialData, WallData,
+            ArrowData, ArrowTutorialData, CheckpointData, GoalData, LevelData, SpaceTutorialData,
+            WallData,
         },
     },
     game::{
-        arrow_tutorial::SpawnArrowTutorial, checkpoint::SpawnCheckpoint, goal::SpawnGoal,
-        space_tutorial::SpawnSpaceTutorial, spawn::wall::SpawnWall,
+        arrow::SpawnArrow, arrow_tutorial::SpawnArrowTutorial, checkpoint::SpawnCheckpoint,
+        goal::SpawnGoal, space_tutorial::SpawnSpaceTutorial, spawn::wall::SpawnWall,
     },
     ui::prelude::*,
     MainCamera,
@@ -29,6 +30,7 @@ enum MenuAction {
     Goal,
     ArrowTutorial,
     SpaceTutorial,
+    Arrow,
 }
 
 fn show_menu(mut cmd: Commands) {
@@ -42,6 +44,7 @@ fn show_menu(mut cmd: Commands) {
                 .insert(MenuAction::ArrowTutorial);
             cmd.button("Space tutorial")
                 .insert(MenuAction::SpaceTutorial);
+            cmd.button("Arrow").insert(MenuAction::Arrow);
         });
 }
 
@@ -99,6 +102,21 @@ fn handle_menu_action(
                         let data = SpaceTutorialData { pos: point.into() };
                         level_data.space_tutorials.insert(uuid, data);
                         cmd.trigger(SpawnSpaceTutorial(uuid, point));
+                    }
+                    MenuAction::Arrow => {
+                        let point =
+                            snap_to_grid(camera_tr.translation.xy(), config.editor.grid_size);
+                        let uuid = Uuid::new_v4();
+                        let data = ArrowData {
+                            pos: point.into(),
+                            angle: 0.0,
+                        };
+                        level_data.arrows.insert(uuid, data);
+                        cmd.trigger(SpawnArrow {
+                            uuid,
+                            pos: point,
+                            angle: 0.0,
+                        });
                     }
                 }
                 next_add_state.set(Tool::Pointer);

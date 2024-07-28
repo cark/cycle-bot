@@ -20,6 +20,7 @@ pub struct GameConfig {
     pub goal: GoalConfig,
     pub space_tutorial: SpaceTutorialConfig,
     pub arrow_tutorial: ArrowTutorialConfig,
+    pub arrow: ArrowConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -175,6 +176,12 @@ pub struct CheckpointLightConfig {
 pub struct GoalConfig {
     pub size: PointConfig,
     pub collider: ColliderConfig,
+}
+
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct ArrowConfig {
+    pub size: PointConfig,
+    pub frame_interval: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]

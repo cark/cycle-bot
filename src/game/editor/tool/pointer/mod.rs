@@ -146,7 +146,8 @@ fn draw_gizmo(
             EntityType::Checkpoint
             | EntityType::Goal
             | EntityType::SpaceTutorial
-            | EntityType::ArrowTutorial => {
+            | EntityType::ArrowTutorial
+            | EntityType::Arrow => {
                 draw_sprite_gizmo(q_sprite_entity, entity, gizmos, gizmo_type);
             }
         }

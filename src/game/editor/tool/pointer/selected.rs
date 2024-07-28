@@ -70,6 +70,12 @@ fn delete_check(
                         current_selected.0 = None;
                         next_state.set(PointerState::Pointing);
                     }
+                    EntityType::Arrow => {
+                        level_data.arrows.remove(&e_id.0);
+                        cmd.entity(entity).despawn_recursive();
+                        current_selected.0 = None;
+                        next_state.set(PointerState::Pointing);
+                    }
                 }
             }
         }

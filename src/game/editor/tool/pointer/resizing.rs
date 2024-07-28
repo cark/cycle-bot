@@ -154,6 +154,7 @@ fn check_resizing_click(
                         EntityType::Checkpoint
                         | EntityType::Goal
                         | EntityType::ArrowTutorial
+                        | EntityType::Arrow
                         | EntityType::SpaceTutorial => {}
                     }
                 }

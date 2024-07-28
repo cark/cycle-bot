@@ -94,3 +94,7 @@ size = { x = 18.0, y = 5.7 }
 
 [arrow_tutorial]
 size = { x = 5.0, y = 2.5 }
+
+[arrow]
+frame_interval = 1.0
+size = { x = 5.0, y = 2.0 }

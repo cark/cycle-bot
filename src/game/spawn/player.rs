@@ -23,27 +23,42 @@ use crate::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.observe(on_spawn_player).observe(on_player_death);
-    app.register_type::<Player>();
-    app.add_systems(
-        Update,
-        (
-            log_speed,
-            check_touch_ground,
-            calc_forces,
-            check_respawn,
-            monitor_damage_contacts,
+    app.insert_resource(LostLimbs::default())
+        .observe(on_spawn_player)
+        .observe(on_player_death)
+        .register_type::<Player>()
+        .add_systems(
+            Update,
+            (
+                log_speed,
+                check_touch_ground,
+                calc_forces,
+                check_respawn,
+                monitor_damage_contacts,
+            )
+                .chain()
+                .in_set(AppSet::RecordInput)
+                .run_if(in_state(Screen::Playing)),
         )
-            .chain()
-            .in_set(AppSet::RecordInput)
-            .run_if(in_state(Screen::Playing)),
-    );
-    app.add_systems(
-        Update,
-        center_camera
-            .in_set(AppSet::Update)
-            .run_if(in_state(GameState::Playing)),
-    );
+        .add_systems(
+            Update,
+            center_camera
+                .in_set(AppSet::Update)
+                .run_if(in_state(GameState::Playing)),
+        );
+}
+
+#[derive(Debug, Resource, Default)]
+pub struct LostLimbs {
+    left: bool,
+    right: bool,
+}
+
+impl LostLimbs {
+    pub fn reset(&mut self) {
+        self.left = false;
+        self.right = false;
+    }
 }
 
 #[derive(Event, Debug)]
@@ -77,9 +92,13 @@ pub struct ArmSocket;
 #[reflect(Component)]
 pub struct HandSocket;
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Reflect)]
 #[reflect(Component)]
-pub struct Arm;
+pub enum Arm {
+    Left,
+    Right,
+}
+
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
 pub struct Eyes;
@@ -138,14 +157,21 @@ fn on_player_death(
 fn monitor_damage_contacts(
     mut cmd: Commands,
     mut contact_force_events: EventReader<ContactForceEvent>,
-    q_arm: Query<Entity, With<LiveArm>>,
+    q_arm: Query<(Entity, &Arm), With<LiveArm>>,
     q_torso: Query<Entity, With<LiveTorso>>,
     config: Res<GameConfig>,
+    mut lost_limbs: ResMut<LostLimbs>,
 ) {
     for event in contact_force_events.read() {
-        if let Ok(arm) = q_arm.get(event.collider1).or(q_arm.get(event.collider2)) {
+        if let Ok((arm_entity, arm)) = q_arm.get(event.collider1).or(q_arm.get(event.collider2)) {
             if event.max_force_magnitude > config.arms.detach_force {
-                cmd.entity(arm).remove::<LiveArm>().remove::<ImpulseJoint>();
+                cmd.entity(arm_entity)
+                    .remove::<LiveArm>()
+                    .remove::<ImpulseJoint>();
+                match arm {
+                    Arm::Left => lost_limbs.left = true,
+                    Arm::Right => lost_limbs.right = true,
+                }
             }
             continue;
         }
@@ -167,6 +193,7 @@ fn on_spawn_player(
     mut cmd: Commands,
     config: Res<GameConfig>,
     image_handles: Res<HandleMap<ImageKey>>,
+    lost_limbs: Res<LostLimbs>,
 ) {
     cmd.spawn((
         Player,
@@ -283,9 +310,16 @@ fn on_spawn_player(
                 });
             })
             .id();
-        for arm in [config.arms.left, config.arms.right] {
+        let mut arms = vec![];
+        if !lost_limbs.left {
+            arms.push((config.arms.left, Arm::Left));
+        }
+        if !lost_limbs.right {
+            arms.push((config.arms.right, Arm::Right));
+        }
+        for (arm_config, arm) in &arms {
             let socket_arm_joint = RevoluteJointBuilder::new()
-                .local_anchor1(vec2(arm.socket.point.x, arm.socket.point.y))
+                .local_anchor1(vec2(arm_config.socket.point.x, arm_config.socket.point.y))
                 .local_anchor2(vec2(-config.arms.length / 2.0, 0.0));
             let arm_center = vec3(
                 config.arms.length / 2.0 + body_translation.x,
@@ -293,7 +327,7 @@ fn on_spawn_player(
                 1.0,
             );
             cmd.spawn((
-                Arm,
+                *arm,
                 LiveArm,
                 RigidBody::Dynamic,
                 Collider::cuboid(config.arms.length / 2.0, config.arms.width / 2.0),

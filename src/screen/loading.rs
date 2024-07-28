@@ -13,6 +13,9 @@ use crate::{
     ui::prelude::*,
 };
 
+#[cfg(feature = "dev")]
+use super::playing::StartPlaying;
+
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Loading), enter_loading);
     app.add_systems(
@@ -79,7 +82,11 @@ fn all_assets_loaded(
         && config.is_some()
 }
 
+#[cfg(feature = "dev")]
+fn continue_to_title(mut cmd: Commands) {
+    cmd.trigger(StartPlaying::NewGame);
+}
+#[cfg(not(feature = "dev"))]
 fn continue_to_title(mut next_screen: ResMut<NextState<Screen>>) {
-    next_screen.set(Screen::Playing);
-    // next_screen.set(Screen::Title);
+    next_screen.set(Screen::Title);
 }

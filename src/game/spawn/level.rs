@@ -1,5 +1,7 @@
 //! Spawn the main level by triggering other observers.
 
+use std::time::Duration;
+
 use bevy::{math::vec2, prelude::*};
 
 use crate::{
@@ -9,26 +11,43 @@ use crate::{
         arrow_tutorial::SpawnArrowTutorial,
         background::SpawnBackground,
         checkpoint::{CurrentActiveCheckpoint, SpawnCheckpoint},
+        game_time::GameTime,
         goal::SpawnGoal,
         space_tutorial::SpawnSpaceTutorial,
     },
 };
 
-use super::{player::SpawnPlayer, wall::SpawnWall};
+use super::{
+    player::{LostLimbs, SpawnPlayer},
+    wall::SpawnWall,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.observe(spawn_level);
 }
 
 #[derive(Event, Debug)]
-pub struct SpawnLevel;
+pub enum SpawnLevel {
+    NewGame,
+    Continue,
+}
 
 fn spawn_level(
-    _trigger: Trigger<SpawnLevel>,
+    trigger: Trigger<SpawnLevel>,
     mut cmd: Commands,
     level: Res<LevelData>,
-    current_checkpoint: Res<CurrentActiveCheckpoint>,
+    mut current_checkpoint: ResMut<CurrentActiveCheckpoint>,
+    mut game_time: ResMut<GameTime>,
+    mut lost_limbs: ResMut<LostLimbs>,
 ) {
+    match trigger.event() {
+        SpawnLevel::Continue => {}
+        SpawnLevel::NewGame => {
+            current_checkpoint.0 = None;
+            game_time.0 = Duration::ZERO;
+            lost_limbs.reset()
+        }
+    }
     cmd.trigger(SpawnBackground);
     let location: Vec2 = if let Some(ref cp) = current_checkpoint.0 {
         if let Some(data) = level.checkpoints.get(&cp.eid.0) {

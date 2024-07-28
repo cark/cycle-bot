@@ -100,7 +100,7 @@ enum AppSet {
 pub struct MainCamera;
 
 fn spawn_camera(mut cmd: Commands) {
-    let mut camera_bundle = Camera2dBundle::default();
+    let camera_bundle = Camera2dBundle::default();
     // camera_bundle.projection.scale = 1. / 16.;
     //camera_bundle.projection.scale = 1. / 24.;
     cmd.spawn((

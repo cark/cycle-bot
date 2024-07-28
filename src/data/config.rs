@@ -21,6 +21,7 @@ pub struct GameConfig {
     pub space_tutorial: SpaceTutorialConfig,
     pub arrow_tutorial: ArrowTutorialConfig,
     pub arrow: ArrowConfig,
+    pub game_time: GameTimeConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -183,6 +184,10 @@ pub struct GoalConfig {
 pub struct ArrowConfig {
     pub size: PointConfig,
     pub frame_interval: f32,
+}
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct GameTimeConfig {
+    pub ratio: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]

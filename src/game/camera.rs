@@ -1,10 +1,6 @@
 use std::time::Duration;
 
-use bevy::{
-    prelude::*,
-    render::camera::ScalingMode,
-    window::{PrimaryWindow, WindowResized},
-};
+use bevy::{prelude::*, render::camera::ScalingMode, window::WindowResized};
 
 use crate::{data::config::GameConfig, lerp::smooth_lerp, screen::Screen, AppSet, MainCamera};
 
@@ -103,25 +99,14 @@ fn on_init_camera(
     _trigger: Trigger<InitCamera>,
     mut cmd: Commands,
     config: Res<GameConfig>,
-    // q_window: Query<&Window, With<PrimaryWindow>>,
     mut q_camera: Query<&mut OrthographicProjection, With<MainCamera>>,
 ) {
     for mut projection in &mut q_camera {
         projection.scaling_mode = ScalingMode::FixedVertical(config.camera.units_per_window_height);
     }
-    // for window in &q_window {
-    //     let units_per_height = config.camera.units_per_window_height;
-    //     let window_height = window.height();
-    //     if window_height > 0.0 {
-    //         let ratio = window_height / units_per_height;
     cmd.insert_resource(CameraTargetScaleDivisor(1.0));
-    //     }
-    // }
 }
 
-// fn check_window_size(mut cmd: Commands) {
-//     cmd.trigger(InitCamera);
-// }
 fn check_window_size(mut cmd: Commands, mut resize_reader: EventReader<WindowResized>) {
     for _e in resize_reader.read() {
         cmd.trigger(InitCamera);

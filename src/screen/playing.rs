@@ -9,9 +9,10 @@ use crate::game::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(Screen::Playing), enter_playing);
+    // app.add_systems(OnEnter(Screen::Playing), enter_playing);
     app.add_systems(OnExit(Screen::Playing), exit_playing);
 
+    app.observe(on_start_playing);
     app.add_systems(
         Update,
         return_to_title_screen
@@ -19,10 +20,16 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-fn enter_playing(mut commands: Commands) {
-    commands.trigger(SpawnLevel);
-    // commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Gameplay));
+#[derive(Debug, Event)]
+pub enum StartPlaying {
+    NewGame,
+    Continue,
 }
+
+// fn enter_playing(mut commands: Commands) {
+//     commands.trigger(SpawnLevel);
+//     // commands.trigger(PlaySoundtrack::Key(SoundtrackKey::Gameplay));
+// }
 
 fn exit_playing(mut _cmd: Commands, q_entities: Query<Entity>) {
     warn!("Entity count: {}", q_entities.iter().count());
@@ -32,4 +39,16 @@ fn exit_playing(mut _cmd: Commands, q_entities: Query<Entity>) {
 
 fn return_to_title_screen(mut next_screen: ResMut<NextState<Screen>>) {
     next_screen.set(Screen::Title);
+}
+
+fn on_start_playing(
+    trigger: Trigger<StartPlaying>,
+    mut cmd: Commands,
+    mut next_state: ResMut<NextState<Screen>>,
+) {
+    match trigger.event() {
+        StartPlaying::NewGame => cmd.trigger(SpawnLevel::NewGame),
+        StartPlaying::Continue => cmd.trigger(SpawnLevel::Continue),
+    }
+    next_state.set(Screen::Playing);
 }

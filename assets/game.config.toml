@@ -99,3 +99,6 @@ size = { x = 5.0, y = 2.5 }
 [arrow]
 frame_interval = 1.0
 size = { x = 5.0, y = 2.0 }
+
+[game_time]
+ratio = 16.0

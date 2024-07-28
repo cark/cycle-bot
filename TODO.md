@@ -5,3 +5,9 @@
   - [] new graphics
 - [] background
   - [] double parallax
+
+
+
+
+after jam
+- [] report observer/gizmo bug

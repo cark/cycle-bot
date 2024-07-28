@@ -143,6 +143,7 @@ impl<T: Spawn> Widgets for T {
                     flex_direction: FlexDirection::Row,
                     column_gap: Px(10.0),
                     position_type: PositionType::Relative,
+                    padding: UiRect::all(Val::Vh(1.0)),
                     ..default()
                 },
                 ..default()

@@ -52,7 +52,7 @@ left.socket.point = { x = -0.9, y = 0.4 }
 right.socket.point = { x = 0.9, y = 0.4 }
 
 [editor]
-camera_speed = 1000.0
+camera_speed = 100.0
 grid_size = 1.0
 
 [background]

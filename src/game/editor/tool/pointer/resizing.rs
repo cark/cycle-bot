@@ -253,8 +253,8 @@ fn draw_gizmos(
     }
 }
 
-const HANDLE_MARGIN: f32 = 0.1;
-const HANDLE_SIZE: f32 = 10.;
+const HANDLE_MARGIN: f32 = 0.01;
+const HANDLE_SIZE: f32 = 0.5;
 
 struct HandlePos {
     world_translation: Vec2,

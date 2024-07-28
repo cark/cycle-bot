@@ -23,7 +23,7 @@ use super::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.observe(spawn_level);
+    app.observe(spawn_level).observe(on_reset_level);
 }
 
 #[derive(Event, Debug)]
@@ -32,20 +32,36 @@ pub enum SpawnLevel {
     Continue,
 }
 
-fn spawn_level(
-    trigger: Trigger<SpawnLevel>,
-    mut cmd: Commands,
-    level: Res<LevelData>,
+#[derive(Debug, Event)]
+pub struct ResetLevel;
+
+fn on_reset_level(
+    _trigger: Trigger<ResetLevel>,
     mut current_checkpoint: ResMut<CurrentActiveCheckpoint>,
     mut game_time: ResMut<GameTime>,
     mut lost_limbs: ResMut<LostLimbs>,
 ) {
+    current_checkpoint.0 = None;
+    game_time.0 = Duration::ZERO;
+    lost_limbs.reset()
+}
+
+fn spawn_level(
+    trigger: Trigger<SpawnLevel>,
+    mut cmd: Commands,
+    level: Res<LevelData>,
+    current_checkpoint: Res<CurrentActiveCheckpoint>,
+    // mut current_checkpoint: ResMut<CurrentActiveCheckpoint>,
+    // mut game_time: ResMut<GameTime>,
+    // mut lost_limbs: ResMut<LostLimbs>,
+) {
     match trigger.event() {
         SpawnLevel::Continue => {}
         SpawnLevel::NewGame => {
-            current_checkpoint.0 = None;
-            game_time.0 = Duration::ZERO;
-            lost_limbs.reset()
+            cmd.trigger(ResetLevel)
+            // current_checkpoint.0 = None;
+            // game_time.0 = Duration::ZERO;
+            // lost_limbs.reset()
         }
     }
     cmd.trigger(SpawnBackground);

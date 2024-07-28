@@ -50,14 +50,24 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Debug, Resource, Default)]
 pub struct LostLimbs {
-    left: bool,
-    right: bool,
+    pub left: bool,
+    pub right: bool,
 }
 
 impl LostLimbs {
     pub fn reset(&mut self) {
         self.left = false;
         self.right = false;
+    }
+    pub fn limb_count(&self) -> u8 {
+        let mut result = 2;
+        if self.left {
+            result -= 1;
+        }
+        if self.right {
+            result -= 1;
+        }
+        result
     }
 }
 

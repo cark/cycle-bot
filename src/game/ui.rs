@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::{color::palettes::css::WHITE_SMOKE, prelude::*, window::PrimaryWindow};
 
 use super::{
@@ -73,12 +75,13 @@ fn update_game_time(
     game_time: Res<GameTime>,
 ) {
     for mut text in &mut q_game_time_text {
-        let duration = game_time.0;
-
-        let minutes = duration.as_secs() / 60;
-        let seconds = duration.as_secs() % 60;
-        let millis = duration.subsec_millis();
-
-        text.sections[0].value = format!("{:0}:{:02}.{:02}", minutes, seconds, millis / 10);
+        text.sections[0].value = format_game_time(game_time.0);
     }
+}
+
+pub fn format_game_time(duration: Duration) -> String {
+    let minutes = duration.as_secs() / 60;
+    let seconds = duration.as_secs() % 60;
+    let millis = duration.subsec_millis();
+    format!("{:0}:{:02}.{:02}", minutes, seconds, millis / 10)
 }

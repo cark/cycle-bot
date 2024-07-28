@@ -7,7 +7,7 @@ use super::{interaction::InteractionPalette, palette::*};
 /// An extension trait for spawning UI widgets.
 pub trait Widgets {
     /// Spawn a simple button with text.
-    fn button(&mut self, text: impl Into<String>) -> EntityCommands;
+    fn button(&mut self, font_size: f32, text: impl Into<String>) -> EntityCommands;
 
     /// Spawn a simple header label. Bigger than [`Widgets::label`].
     fn header(&mut self, text: impl Into<String>) -> EntityCommands;
@@ -21,7 +21,7 @@ pub trait Widgets {
 }
 
 impl<T: Spawn> Widgets for T {
-    fn button(&mut self, text: impl Into<String>) -> EntityCommands {
+    fn button(&mut self, font_size: f32, text: impl Into<String>) -> EntityCommands {
         let mut entity = self.spawn((
             Name::new("Button"),
             ButtonBundle {
@@ -30,6 +30,7 @@ impl<T: Spawn> Widgets for T {
                     height: Px(65.0),
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    //margin: UiRect::horizontal(Val::Vh(2.)),
                     ..default()
                 },
                 background_color: BackgroundColor(NODE_BACKGROUND),
@@ -47,7 +48,7 @@ impl<T: Spawn> Widgets for T {
                 TextBundle::from_section(
                     text,
                     TextStyle {
-                        font_size: 40.0,
+                        font_size,
                         color: BUTTON_TEXT,
                         ..default()
                     },

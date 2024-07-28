@@ -14,7 +14,7 @@ use crate::{
     ui::prelude::*,
     MainCamera,
 };
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 use uuid::Uuid;
 
 pub(super) fn plugin(app: &mut App) {
@@ -33,19 +33,23 @@ enum MenuAction {
     Arrow,
 }
 
-fn show_menu(mut cmd: Commands) {
-    cmd.ui_center_root()
-        .insert(StateScoped(Tool::Add))
-        .with_children(|cmd| {
-            cmd.button("Wall").insert(MenuAction::Wall);
-            cmd.button("Checkpoint").insert(MenuAction::Checkpoint);
-            cmd.button("Goal").insert(MenuAction::Goal);
-            cmd.button("Arrow tutorial")
-                .insert(MenuAction::ArrowTutorial);
-            cmd.button("Space tutorial")
-                .insert(MenuAction::SpaceTutorial);
-            cmd.button("Arrow").insert(MenuAction::Arrow);
-        });
+fn show_menu(mut cmd: Commands, q_window: Query<&Window, With<PrimaryWindow>>) {
+    for window in &q_window {
+        let font_size = window.height() / 30.;
+        cmd.ui_center_root()
+            .insert(StateScoped(Tool::Add))
+            .with_children(|cmd| {
+                cmd.button(font_size, "Wall").insert(MenuAction::Wall);
+                cmd.button(font_size, "Checkpoint")
+                    .insert(MenuAction::Checkpoint);
+                cmd.button(font_size, "Goal").insert(MenuAction::Goal);
+                cmd.button(font_size, "Arrow tutorial")
+                    .insert(MenuAction::ArrowTutorial);
+                cmd.button(font_size, "Space tutorial")
+                    .insert(MenuAction::SpaceTutorial);
+                cmd.button(font_size, "Arrow").insert(MenuAction::Arrow);
+            });
+    }
 }
 
 fn handle_menu_action(

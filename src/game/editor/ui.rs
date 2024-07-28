@@ -1,5 +1,5 @@
 use crate::{data::level::LevelData, ui::prelude::*};
-use bevy::prelude::*;
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::game::GameState;
 
@@ -28,17 +28,20 @@ struct ToolText;
 #[derive(Event, Debug)]
 pub struct UpdateToolText(pub &'static str);
 
-fn enter_editing(mut cmd: Commands) {
-    cmd.ui_top_root()
-        .insert(StateScoped(GameState::Editing))
-        .with_children(|cmd| {
-            cmd.tool_bar().with_children(|cmd| {
-                cmd.button("Save").insert(EditorAction::Save);
-                cmd.button("Back").insert(EditorAction::Back);
-                cmd.button("Add").insert(EditorAction::Add);
-                cmd.text("tool: ").insert(ToolText);
+fn enter_editing(mut cmd: Commands, q_window: Query<&Window, With<PrimaryWindow>>) {
+    for window in &q_window {
+        let font_size = window.height() / 30.;
+        cmd.ui_top_root()
+            .insert(StateScoped(GameState::Editing))
+            .with_children(|cmd| {
+                cmd.tool_bar().with_children(|cmd| {
+                    cmd.button(font_size, "Save").insert(EditorAction::Save);
+                    cmd.button(font_size, "Back").insert(EditorAction::Back);
+                    cmd.button(font_size, "Add").insert(EditorAction::Add);
+                    cmd.text("tool: ").insert(ToolText);
+                });
             });
-        });
+    }
 }
 
 fn handle_editor_action(

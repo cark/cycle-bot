@@ -174,9 +174,17 @@ fn init_ui(
                         "Do robots feel pain ?",
                         "Hope you didn't need it.",
                         "It's only a tin wound.",
-                        "Just walk it off!",
-                        "Let's call it a redesign",
+                        "Just walk it off !",
+                        "Let's call it a redesign.",
                     ];
+                    let lost1 = *LOST_COMMENTS.choose(&mut rng).expect("We have comments.");
+                    let mut lost2: &str;
+                    loop {
+                        lost2 = LOST_COMMENTS.choose(&mut rng).expect("We have comments.");
+                        if lost2 != lost1 {
+                            break;
+                        }
+                    }
                     cmd.spawn((
                         ArmComment,
                         Arm::Left,
@@ -196,10 +204,7 @@ fn init_ui(
                                 },
                                 TextSection {
                                     value: if lost_limbs.left {
-                                        format!(
-                                            "          {}",
-                                            LOST_COMMENTS.choose(&mut rng).unwrap()
-                                        )
+                                        format!("          {}", lost1)
                                     } else {
                                         "          Good thing if you're a lefty !".to_string()
                                     },
@@ -232,10 +237,7 @@ fn init_ui(
                                 },
                                 TextSection {
                                     value: if lost_limbs.right {
-                                        format!(
-                                            "          {}",
-                                            LOST_COMMENTS.choose(&mut rng).unwrap()
-                                        )
+                                        format!("          {}", lost2)
                                     } else {
                                         "          That's right !".to_string()
                                     },

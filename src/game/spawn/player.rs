@@ -26,6 +26,7 @@ pub(super) fn plugin(app: &mut App) {
     app.insert_resource(LostLimbs::default())
         .observe(on_spawn_player)
         .observe(on_player_death)
+        .observe(on_despawn)
         .observe(on_respawn)
         .register_type::<Player>()
         .add_systems(
@@ -130,7 +131,10 @@ struct LiveTorso;
 struct PlayerOnGround;
 
 #[derive(Debug, Event)]
-struct PlayerDeath;
+pub struct PlayerDeath;
+
+#[derive(Debug, Event)]
+pub struct Despawn;
 
 fn on_player_death(
     _trigger: Trigger<PlayerDeath>,
@@ -371,16 +375,23 @@ fn on_spawn_player(
     });
 }
 
-fn on_respawn(
-    _trigger: Trigger<Respawn>,
+fn on_despawn(
+    _trigger: Trigger<Despawn>,
     mut cmd: Commands,
     q_player: Query<Entity, With<Player>>,
-    current_active_checkpoint: Res<CurrentActiveCheckpoint>,
-    q_checkpoint: Query<&Transform, With<Checkpoint>>,
 ) {
     for e in &q_player {
         cmd.entity(e).despawn_recursive();
     }
+}
+
+fn on_respawn(
+    _trigger: Trigger<Respawn>,
+    mut cmd: Commands,
+    current_active_checkpoint: Res<CurrentActiveCheckpoint>,
+    q_checkpoint: Query<&Transform, With<Checkpoint>>,
+) {
+    cmd.trigger(Despawn);
     if let Some(ref active_checkpoint) = current_active_checkpoint.0 {
         if let Ok(tr) = q_checkpoint.get(active_checkpoint.entity) {
             cmd.trigger(SpawnPlayer(tr.translation.xy() + vec2(0.0, 1.0)));

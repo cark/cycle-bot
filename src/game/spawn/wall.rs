@@ -11,7 +11,6 @@ use crate::{
     screen::Screen,
 };
 use bevy::{
-    color::palettes::css::WHITE,
     math::vec2,
     prelude::*,
     render::view::NoFrustumCulling,
@@ -104,7 +103,7 @@ fn ensure_material(
         mh.0.clone()
     } else {
         let material = FixedMaterial::new(
-            WHITE,
+            Color::linear_rgba(0.55, 0.6, 0.7, 1.0),
             image_handles[&ImageKey::Wall].clone_weak(),
             vec2(config.wall.scale_x, config.wall.scale_y),
             vec2(1.0, 1.0),

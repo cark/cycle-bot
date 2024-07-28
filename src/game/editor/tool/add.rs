@@ -8,8 +8,15 @@ use crate::{
         },
     },
     game::{
-        arrow::SpawnArrow, arrow_tutorial::SpawnArrowTutorial, checkpoint::SpawnCheckpoint,
-        goal::SpawnGoal, space_tutorial::SpawnSpaceTutorial, spawn::wall::SpawnWall,
+        arrow::SpawnArrow,
+        arrow_tutorial::SpawnArrowTutorial,
+        checkpoint::SpawnCheckpoint,
+        goal::SpawnGoal,
+        space_tutorial::SpawnSpaceTutorial,
+        spawn::{
+            player::{Despawn, SpawnPlayer},
+            wall::SpawnWall,
+        },
     },
     ui::prelude::*,
     MainCamera,
@@ -25,6 +32,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Reflect)]
 #[reflect(Component)]
 enum MenuAction {
+    Player,
     Wall,
     Checkpoint,
     Goal,
@@ -48,6 +56,7 @@ fn show_menu(mut cmd: Commands, q_window: Query<&Window, With<PrimaryWindow>>) {
                 cmd.button(font_size, "Space tutorial")
                     .insert(MenuAction::SpaceTutorial);
                 cmd.button(font_size, "Arrow").insert(MenuAction::Arrow);
+                cmd.button(font_size, "Player").insert(MenuAction::Player);
             });
     }
 }
@@ -121,6 +130,10 @@ fn handle_menu_action(
                             pos: point,
                             angle: 0.0,
                         });
+                    }
+                    MenuAction::Player => {
+                        cmd.trigger(Despawn);
+                        cmd.trigger(SpawnPlayer(camera_tr.translation.xy()));
                     }
                 }
                 next_add_state.set(Tool::Pointer);

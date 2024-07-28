@@ -33,17 +33,27 @@ fn enter_title(
         commands
             .ui_center_root()
             .insert(StateScoped(Screen::Title))
-            .with_children(|children| {
-                if current_checkpoint.0.is_some() {
-                    children
-                        .button(font_size, "Continue")
-                        .insert(TitleAction::Continue);
-                }
-                children.button(font_size, "Play").insert(TitleAction::Play);
-                // children.button("Credits").insert(TitleAction::Credits);
+            .with_children(|cmd| {
+                cmd.spawn(NodeBundle {
+                    style: Style {
+                        display: Display::Flex,
+                        flex_direction: FlexDirection::Column,
+                        row_gap: Val::Vh(2.0),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|cmd| {
+                    if current_checkpoint.0.is_some() {
+                        cmd.button(font_size, "Continue")
+                            .insert(TitleAction::Continue);
+                    }
+                    cmd.button(font_size, "New Game").insert(TitleAction::Play);
+                    // children.button("Credits").insert(TitleAction::Credits);
 
-                #[cfg(not(target_family = "wasm"))]
-                children.button(font_size, "Exit").insert(TitleAction::Exit);
+                    #[cfg(not(target_family = "wasm"))]
+                    cmd.button(font_size, "Exit").insert(TitleAction::Exit);
+                });
             });
     }
 }

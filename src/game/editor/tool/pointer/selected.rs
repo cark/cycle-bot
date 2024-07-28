@@ -1,12 +1,16 @@
 use std::f32::consts::TAU;
 
-use bevy::{input::mouse::MouseWheel, prelude::*};
+use bevy::{input::mouse::MouseWheel, math::vec2, prelude::*};
+use uuid::Uuid;
 
 use crate::{
-    data::{config::GameConfig, level::LevelData},
+    data::{
+        config::GameConfig,
+        level::{LevelData, WallData},
+    },
     game::{
         arrow::Arrow, editor::tool::pointer::moving::MoveOp, entity_id::EntityId,
-        entity_type::EntityType, object_size::ObjectSize,
+        entity_type::EntityType, object_size::ObjectSize, spawn::wall::SpawnWall,
     },
     mouse::MouseScreenCoords,
     AppSet,
@@ -20,7 +24,13 @@ use super::{
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(CurrentSelected(None)).add_systems(
         Update,
-        (highlight_check, click_check, delete_check, rotate_check)
+        (
+            highlight_check,
+            click_check,
+            delete_check,
+            rotate_check,
+            copy_check,
+        )
             .chain()
             .in_set(AppSet::RecordInput)
             .run_if(in_state(PointerState::Selected)),
@@ -60,6 +70,40 @@ fn rotate_check(
                             panic!("Don't know how to scroll by pixel")
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+fn copy_check(
+    mut cmd: Commands,
+    current_selected: Res<CurrentSelected>,
+    input: Res<ButtonInput<KeyCode>>,
+    q_entity: Query<(&EntityType, &EntityId)>,
+    mut level_data: ResMut<LevelData>,
+) {
+    if let Some(entity) = current_selected.0 {
+        if input.just_pressed(KeyCode::KeyC) {
+            if let Ok((e_type, e_id)) = q_entity.get(entity) {
+                let offset = vec2(1.0, 1.0);
+                match e_type {
+                    EntityType::Wall => {
+                        let mut wall_rect: Rect = level_data.walls[&e_id.0].rect.into();
+                        wall_rect.max += offset;
+                        wall_rect.min += offset;
+                        let uuid = Uuid::new_v4();
+                        let data = WallData {
+                            rect: wall_rect.into(),
+                        };
+                        level_data.walls.insert(uuid, data);
+                        cmd.trigger(SpawnWall(uuid, data));
+                    }
+                    EntityType::Checkpoint => todo!(),
+                    EntityType::Goal => todo!(),
+                    EntityType::SpaceTutorial => todo!(),
+                    EntityType::ArrowTutorial => todo!(),
+                    EntityType::Arrow => todo!(),
                 }
             }
         }

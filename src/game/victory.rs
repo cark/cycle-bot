@@ -3,7 +3,6 @@ use bevy::{
     prelude::*,
     window::PrimaryWindow,
 };
-use rand::thread_rng;
 
 use super::{
     assets::{FontKey, HandleMap, ImageKey},
@@ -17,6 +16,7 @@ use super::{
 };
 use crate::{screen::Screen, ui::prelude::*};
 use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Victory), init_ui)

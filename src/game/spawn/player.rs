@@ -26,6 +26,7 @@ pub(super) fn plugin(app: &mut App) {
     app.insert_resource(LostLimbs::default())
         .observe(on_spawn_player)
         .observe(on_player_death)
+        .observe(on_respawn)
         .register_type::<Player>()
         .add_systems(
             Update,
@@ -73,6 +74,9 @@ impl LostLimbs {
 
 #[derive(Event, Debug)]
 pub struct SpawnPlayer(pub Vec2);
+
+#[derive(Event, Debug)]
+pub struct Respawn;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
@@ -136,6 +140,7 @@ fn on_player_death(
     mut q_head: Query<(Entity, &GlobalTransform, &mut Transform), With<Head>>,
     q_wheel: Query<Entity, With<Wheel>>,
     q_tube: Query<Entity, With<Tube>>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     warn!("process death");
     for entity in &q_arm {
@@ -162,6 +167,7 @@ fn on_player_death(
     for entity in &q_tube {
         cmd.entity(entity).remove::<Tube>().remove::<ImpulseJoint>();
     }
+    next_state.set(GameState::Death);
 }
 
 fn monitor_damage_contacts(
@@ -365,23 +371,26 @@ fn on_spawn_player(
     });
 }
 
-fn check_respawn(
-    input: Res<ButtonInput<KeyCode>>,
+fn on_respawn(
+    _trigger: Trigger<Respawn>,
     mut cmd: Commands,
     q_player: Query<Entity, With<Player>>,
     current_active_checkpoint: Res<CurrentActiveCheckpoint>,
-    q_checkpopint: Query<&Transform, With<Checkpoint>>,
-    //config: Res<GameConfig>,
+    q_checkpoint: Query<&Transform, With<Checkpoint>>,
 ) {
+    for e in &q_player {
+        cmd.entity(e).despawn_recursive();
+    }
+    if let Some(ref active_checkpoint) = current_active_checkpoint.0 {
+        if let Ok(tr) = q_checkpoint.get(active_checkpoint.entity) {
+            cmd.trigger(SpawnPlayer(tr.translation.xy() + vec2(0.0, 1.0)));
+        }
+    }
+}
+
+fn check_respawn(input: Res<ButtonInput<KeyCode>>, mut cmd: Commands) {
     if input.just_pressed(KeyCode::KeyR) {
-        for e in &q_player {
-            cmd.entity(e).despawn_recursive();
-        }
-        if let Some(ref active_checkpoint) = current_active_checkpoint.0 {
-            if let Ok(tr) = q_checkpopint.get(active_checkpoint.entity) {
-                cmd.trigger(SpawnPlayer(tr.translation.xy() + vec2(0.0, 1.0)));
-            }
-        }
+        cmd.trigger(Respawn);
     }
 }
 

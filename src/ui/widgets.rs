@@ -2,7 +2,16 @@
 
 use bevy::{ecs::system::EntityCommands, prelude::*, ui::Val::*};
 
+use crate::{
+    game::assets::{FontKey, HandleMap},
+    AppSet,
+};
+
 use super::{interaction::InteractionPalette, palette::*};
+
+pub(super) fn plugin(app: &mut App) {
+    app.add_systems(Update, set_button_font);
+}
 
 /// An extension trait for spawning UI widgets.
 pub trait Widgets {
@@ -18,6 +27,20 @@ pub trait Widgets {
     fn tool_bar(&mut self) -> EntityCommands;
 
     fn text(&mut self, text: impl Into<String>) -> EntityCommands;
+}
+
+#[derive(Debug, Component)]
+struct ButtonText;
+
+fn set_button_font(
+    mut q_text: Query<&mut Text, Added<ButtonText>>,
+    font_handles: Res<HandleMap<FontKey>>,
+) {
+    for mut text in &mut q_text {
+        for section in &mut text.sections {
+            section.style.font = font_handles[&FontKey::GeoFont].clone_weak();
+        }
+    }
 }
 
 impl<T: Spawn> Widgets for T {
@@ -44,6 +67,7 @@ impl<T: Spawn> Widgets for T {
         ));
         entity.with_children(|children| {
             children.spawn((
+                ButtonText,
                 Name::new("Button Text"),
                 TextBundle::from_section(
                     text,

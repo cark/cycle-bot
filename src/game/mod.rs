@@ -14,6 +14,8 @@ pub mod audio;
 pub mod background;
 pub mod camera;
 pub mod checkpoint;
+
+pub mod death_state;
 #[cfg(feature = "dev")]
 pub mod editor;
 pub mod entity_id;
@@ -45,6 +47,7 @@ pub(super) fn plugin(app: &mut App) {
         (
             goal::plugin,
             victory::plugin,
+            death_state::plugin,
             space_tutorial::plugin,
             arrow_tutorial::plugin,
             arrow::plugin,
@@ -56,6 +59,7 @@ pub(super) fn plugin(app: &mut App) {
         editor::plugin,
     ));
     app.add_systems(OnEnter(Screen::Playing), playing_entered);
+    app.add_systems(OnEnter(GameState::Death), start_rapier);
     app.add_systems(OnExit(GameState::Victory), start_rapier);
     app.add_systems(OnEnter(GameState::Victory), stop_rapier);
     app.add_systems(OnExit(GameState::Editing), start_rapier);
@@ -68,6 +72,7 @@ pub enum GameState {
     #[default]
     Playing,
     Victory,
+    Death,
     #[cfg(feature = "dev")]
     Editing,
 }

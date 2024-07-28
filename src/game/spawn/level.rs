@@ -23,7 +23,9 @@ use super::{
 };
 
 pub(super) fn plugin(app: &mut App) {
-    app.observe(spawn_level).observe(on_reset_level);
+    app.observe(spawn_level)
+        .observe(on_reset_level)
+        .observe(on_do_spawn);
 }
 
 #[derive(Event, Debug)]
@@ -34,6 +36,8 @@ pub enum SpawnLevel {
 
 #[derive(Debug, Event)]
 pub struct ResetLevel;
+#[derive(Debug, Event)]
+struct DoSpawn;
 
 fn on_reset_level(
     _trigger: Trigger<ResetLevel>,
@@ -46,15 +50,7 @@ fn on_reset_level(
     lost_limbs.reset()
 }
 
-fn spawn_level(
-    trigger: Trigger<SpawnLevel>,
-    mut cmd: Commands,
-    level: Res<LevelData>,
-    current_checkpoint: Res<CurrentActiveCheckpoint>,
-    // mut current_checkpoint: ResMut<CurrentActiveCheckpoint>,
-    // mut game_time: ResMut<GameTime>,
-    // mut lost_limbs: ResMut<LostLimbs>,
-) {
+fn spawn_level(trigger: Trigger<SpawnLevel>, mut cmd: Commands) {
     match trigger.event() {
         SpawnLevel::Continue => {}
         SpawnLevel::NewGame => {
@@ -64,6 +60,18 @@ fn spawn_level(
             // lost_limbs.reset()
         }
     }
+    cmd.trigger(DoSpawn);
+}
+
+fn on_do_spawn(
+    _trigger: Trigger<DoSpawn>,
+    mut cmd: Commands,
+    level: Res<LevelData>,
+    current_checkpoint: Res<CurrentActiveCheckpoint>,
+    // mut current_checkpoint: ResMut<CurrentActiveCheckpoint>,
+    // mut game_time: ResMut<GameTime>,
+    // mut lost_limbs: ResMut<LostLimbs>,
+) {
     cmd.trigger(SpawnBackground);
     let location: Vec2 = if let Some(ref cp) = current_checkpoint.0 {
         if let Some(data) = level.checkpoints.get(&cp.eid.0) {

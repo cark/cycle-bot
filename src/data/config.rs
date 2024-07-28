@@ -42,7 +42,8 @@ pub struct TubeConfig {
 
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct CameraConfig {
-    pub playing_scale_divisor: f32,
+    // pub playing_scale_divisor: f32,
+    pub units_per_window_height: f32,
 }
 
 #[derive(serde::Deserialize, Clone, Copy)]

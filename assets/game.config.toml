@@ -18,7 +18,8 @@ mass = 0.01
 length = 1.8
 
 [camera]
-playing_scale_divisor = 24.0
+# playing_scale_divisor = 24.0
+units_per_window_height = 35.0
 
 [torso]
 width = 2.0

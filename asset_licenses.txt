@@ -1,0 +1,4 @@
+GeoFont Typeface
+author: Xetheon
+license: Free for commercial use, OFL
+source: https://fontesk.com/geofont-typeface/

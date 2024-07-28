@@ -20,9 +20,16 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-fn camera_zoom(mut cmd: Commands, mut evr_scroll: EventReader<MouseWheel>) {
+fn camera_zoom(
+    input: Res<ButtonInput<KeyCode>>,
+    mut cmd: Commands,
+    mut evr_scroll: EventReader<MouseWheel>,
+) {
     use bevy::input::mouse::MouseScrollUnit;
     for ev in evr_scroll.read() {
+        if input.pressed(KeyCode::ControlLeft) || input.pressed(KeyCode::ControlRight) {
+            continue;
+        }
         match ev.unit {
             MouseScrollUnit::Line => {
                 if ev.y > 0.0 {

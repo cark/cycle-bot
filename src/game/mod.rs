@@ -56,6 +56,8 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Editing), stop_rapier);
 }
 
+// #[deri]
+
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
 #[source(Screen = Screen::Playing)]
 pub enum GameState {

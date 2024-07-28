@@ -1,10 +1,12 @@
-use bevy::prelude::*;
+use std::f32::consts::TAU;
+
+use bevy::{input::mouse::MouseWheel, prelude::*};
 
 use crate::{
     data::{config::GameConfig, level::LevelData},
     game::{
-        editor::tool::pointer::moving::MoveOp, entity_id::EntityId, entity_type::EntityType,
-        object_size::ObjectSize,
+        arrow::Arrow, editor::tool::pointer::moving::MoveOp, entity_id::EntityId,
+        entity_type::EntityType, object_size::ObjectSize,
     },
     mouse::MouseScreenCoords,
     AppSet,
@@ -18,7 +20,7 @@ use super::{
 pub(super) fn plugin(app: &mut App) {
     app.insert_resource(CurrentSelected(None)).add_systems(
         Update,
-        (highlight_check, click_check, delete_check)
+        (highlight_check, click_check, delete_check, rotate_check)
             .chain()
             .in_set(AppSet::RecordInput)
             .run_if(in_state(PointerState::Selected)),
@@ -27,6 +29,42 @@ pub(super) fn plugin(app: &mut App) {
 
 #[derive(Debug, Resource)]
 pub struct CurrentSelected(pub Option<Entity>);
+
+fn rotate_check(
+    current_selected: Res<CurrentSelected>,
+    mut q_entity: Query<(&EntityId, &mut Transform), With<Arrow>>,
+    input: Res<ButtonInput<KeyCode>>,
+    mut evr_scroll: EventReader<MouseWheel>,
+    mut level: ResMut<LevelData>,
+) {
+    use bevy::input::mouse::MouseScrollUnit;
+    for ev in evr_scroll.read() {
+        if input.pressed(KeyCode::ControlLeft) || input.pressed(KeyCode::ControlRight) {
+            if let Some(selected) = current_selected.0 {
+                if let Ok((id, mut transform)) = q_entity.get_mut(selected) {
+                    match ev.unit {
+                        MouseScrollUnit::Line => {
+                            let delta = if ev.y > 0.0 {
+                                Rot2::degrees(5.0)
+                            } else {
+                                Rot2::degrees(-5.0)
+                            };
+                            let angle = (transform.rotation.to_axis_angle().1 + delta.as_radians())
+                                .rem_euclid(TAU);
+                            transform.rotation = Quat::from_rotation_z(angle);
+                            if let Some(ref mut arrow_data) = level.arrows.get_mut(&id.0) {
+                                arrow_data.angle = angle;
+                            }
+                        }
+                        MouseScrollUnit::Pixel => {
+                            panic!("Don't know how to scroll by pixel")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 fn delete_check(
     mut cmd: Commands,

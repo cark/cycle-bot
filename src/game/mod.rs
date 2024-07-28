@@ -62,8 +62,11 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Death), start_rapier);
     app.add_systems(OnExit(GameState::Victory), start_rapier);
     app.add_systems(OnEnter(GameState::Victory), stop_rapier);
-    app.add_systems(OnExit(GameState::Editing), start_rapier);
-    app.add_systems(OnEnter(GameState::Editing), stop_rapier);
+    #[cfg(feature = "dev")]
+    {
+        app.add_systems(OnExit(GameState::Editing), start_rapier);
+        app.add_systems(OnEnter(GameState::Editing), stop_rapier);
+    }
 }
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]

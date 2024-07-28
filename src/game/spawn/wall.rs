@@ -13,9 +13,11 @@ use crate::{
 use bevy::{
     math::vec2,
     prelude::*,
-    render::view::NoFrustumCulling,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
+
+#[cfg(feature = "dev")]
+use bevy::render::view::NoFrustumCulling;
 use bevy_rapier2d::prelude::*;
 use uuid::Uuid;
 pub(super) fn plugin(app: &mut App) {

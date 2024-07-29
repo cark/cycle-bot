@@ -1,9 +1,12 @@
 //! Game mechanics and content.
 
-use bevy::{input::common_conditions::input_just_pressed, prelude::*};
+use bevy::prelude::*;
 use bevy_rapier2d::{plugin::RapierConfiguration, render::DebugRenderContext};
 
 use crate::{data::config::GameConfig, screen::Screen};
+
+#[cfg(feature = "dev")]
+use bevy::input::common_conditions::input_just_pressed;
 
 mod animation;
 pub mod arrow;

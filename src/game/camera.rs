@@ -24,6 +24,7 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Event)]
 pub struct CenterCamera(pub Vec2);
 
+#[allow(dead_code)]
 #[derive(Event)]
 pub enum ZoomCamera {
     In,

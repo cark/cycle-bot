@@ -1,5 +1,5 @@
 [package]
-name = "cycle_bot"
+name = "cycle-bot"
 authors = ["Cark <carkhy@gmail.com>"]
 version = "0.1.0"
 edition = "2021"

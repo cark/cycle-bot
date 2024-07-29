@@ -17,9 +17,9 @@ on:
 # Configure constants for this workflow.
 env:
   # The base filename of the binary produced by `cargo build`.
-  BINARY: car-loop
+  BINARY: cycle-bot
   # The name to use for the packaged application produced by this workflow.
-  PACKAGE_NAME: car-loop
+  PACKAGE_NAME: cycle-bot
   # The itch.io page to upload to, in the format: `user-name/project-name`.
   # Comment this out to disable.
   ITCH_TARGET: carkhy/cycle-bot

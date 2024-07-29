@@ -22,6 +22,7 @@ pub struct GameConfig {
     pub arrow_tutorial: ArrowTutorialConfig,
     pub arrow: ArrowConfig,
     pub game_time: GameTimeConfig,
+    pub audio: AudioConfig,
 }
 
 #[derive(serde::Deserialize, Resource, Clone, Copy)]
@@ -190,6 +191,14 @@ pub struct GameTimeConfig {
     pub ratio: f32,
 }
 
+#[derive(serde::Deserialize, Clone, Copy)]
+pub struct AudioConfig {
+    pub soundtrack_volume: f32,
+    pub sfx_volume: f32,
+    pub engine: f32,
+    pub engine_acc: f32,
+    pub engine_dec: f32,
+}
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct ColorConfig {
     pub r: f32,

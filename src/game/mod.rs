@@ -25,6 +25,7 @@ pub mod game_time;
 pub mod goal;
 mod movement;
 pub mod object_size;
+pub mod pause;
 pub mod physics;
 pub mod space_tutorial;
 pub mod spawn;
@@ -54,6 +55,7 @@ pub(super) fn plugin(app: &mut App) {
             atlas_animation::plugin,
             game_time::plugin,
             ui::plugin,
+            pause::plugin,
         ),
         #[cfg(feature = "dev")]
         editor::plugin,
@@ -76,6 +78,7 @@ pub enum GameState {
     Playing,
     Victory,
     Death,
+    Pause,
     #[cfg(feature = "dev")]
     Editing,
 }

@@ -1,12 +1,10 @@
-- [] editor
-  - [*] screen pan
 - [] robot
   - [*] draw it
   - [] new graphics
-- [] background
-  - [] double parallax
+- [*] background
+  - [*] double parallax
 
-
+- [] escape !
 
 
 after jam

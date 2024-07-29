@@ -102,3 +102,10 @@ size = { x = 5.0, y = 2.0 }
 
 [game_time]
 ratio = 16.0
+
+[audio]
+soundtrack_volume = 1.0
+sfx_volume = 1.0
+engine = 0.5
+engine_acc = 1.0
+engine_dec = 0.5

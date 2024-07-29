@@ -13,8 +13,10 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(GameState::Playing), spawn_ui)
         .add_systems(
             Update,
-            (adjust_font_size, update_game_time)
-                .in_set(AppSet::Update)
+            (
+                (adjust_font_size, update_game_time).in_set(AppSet::Update),
+                handle_action.in_set(AppSet::RecordInput),
+            )
                 .run_if(in_state(GameState::Playing)),
         );
 }
@@ -22,38 +24,83 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Debug, Component)]
 pub struct GameTimeText;
 
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Reflect)]
+#[reflect(Component)]
+enum Action {
+    Pause,
+}
+
+fn handle_action(
+    mut button_query: InteractionQuery<&Action>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    for (interaction, action) in &mut button_query {
+        if matches!(interaction, Interaction::Pressed) {
+            match action {
+                Action::Pause => {
+                    next_state.set(GameState::Pause);
+                }
+            }
+        }
+    }
+}
+
 fn spawn_ui(
     mut cmd: Commands,
     font_handles: Res<HandleMap<FontKey>>,
     q_window: Query<&Window, With<PrimaryWindow>>,
     config: Res<GameConfig>,
 ) {
-    cmd.ui_top_root()
-        .with_children(|cmd| {
-            cmd.tool_bar().with_children(|cmd| {
-                for window in &q_window {
-                    cmd.spawn((
-                        GameTimeText,
-                        TextBundle {
-                            text: Text::from_section(
-                                "0:00.00",
-                                TextStyle {
-                                    font: font_handles[&FontKey::GeoFont].clone_weak(),
-                                    font_size: window.height() / config.game_time.ratio,
-                                    color: Color::from(WHITE_SMOKE),
+    use bevy::ui::Val::*;
+    for window in &q_window {
+        cmd.ui_top_root()
+            .insert(StateScoped(GameState::Playing))
+            .with_children(|cmd| {
+                cmd.tool_bar().with_children(|cmd| {
+                    for window in &q_window {
+                        cmd.spawn((
+                            GameTimeText,
+                            TextBundle {
+                                text: Text::from_section(
+                                    "0:00.00",
+                                    TextStyle {
+                                        font: font_handles[&FontKey::GeoFont].clone_weak(),
+                                        font_size: window.height() / config.game_time.ratio,
+                                        color: Color::from(WHITE_SMOKE),
+                                    },
+                                ),
+                                style: Style {
+                                    width: Vh(10.),
+                                    ..default()
                                 },
-                            ),
-                            style: Style {
-                                width: Val::Vh(10.),
                                 ..default()
                             },
-                            ..default()
-                        },
-                    ));
-                }
+                        ));
+                    }
+                });
             });
-        })
-        .insert(StateScoped(GameState::Playing));
+        cmd.ui_top_root()
+            .insert(StateScoped(GameState::Playing))
+            .with_children(|cmd| {
+                cmd.spawn(NodeBundle {
+                    style: Style {
+                        width: Percent(100.0),
+                        justify_content: JustifyContent::FlexEnd,
+                        align_items: AlignItems::Baseline,
+                        flex_direction: FlexDirection::Row,
+                        column_gap: Px(10.0),
+                        position_type: PositionType::Relative,
+                        padding: UiRect::all(Vh(1.0)),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .with_children(|cmd| {
+                    cmd.button(window.height() / 24., "(P)ause")
+                        .insert(Action::Pause);
+                });
+            });
+    }
 }
 
 fn adjust_font_size(

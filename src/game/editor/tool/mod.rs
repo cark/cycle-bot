@@ -6,10 +6,13 @@ use bevy::prelude::*;
 use crate::game::{editor::ui::UpdateToolText, GameState};
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_plugins((pointer::plugin, add::plugin));
-    app.add_sub_state::<Tool>();
-    app.enable_state_scoped_entities::<Tool>();
-    app.add_systems(Update, tool_change);
+    app.add_plugins((pointer::plugin, add::plugin))
+        .add_sub_state::<Tool>()
+        .enable_state_scoped_entities::<Tool>()
+        .add_systems(
+            Update,
+            (tool_change, check_escape).run_if(in_state(GameState::Editing)),
+        );
 }
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, SubStates)]
@@ -34,5 +37,11 @@ fn tool_change(mut cmd: Commands, mut ev: EventReader<StateTransitionEvent<Tool>
         if let Some(ref state) = transition.entered {
             cmd.trigger(UpdateToolText(state.name()));
         }
+    }
+}
+
+fn check_escape(input: Res<ButtonInput<KeyCode>>, mut next_state: ResMut<NextState<GameState>>) {
+    if input.just_pressed(KeyCode::Escape) {
+        next_state.set(GameState::Playing);
     }
 }

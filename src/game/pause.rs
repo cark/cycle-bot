@@ -15,6 +15,7 @@ pub(super) fn plugin(app: &mut App) {
             (
                 (
                     check_input_for_pause.run_if(in_state(GameState::Playing)),
+                    check_input_for_pause_exit.run_if(in_state(GameState::Pause)),
                     handle_action.run_if(in_state(GameState::Pause)),
                 )
                     .in_set(AppSet::RecordInput),
@@ -281,7 +282,16 @@ fn check_input_for_pause(
     input: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    if input.just_pressed(KeyCode::KeyP) {
+    if input.just_pressed(KeyCode::KeyP) || input.just_pressed(KeyCode::Escape) {
         next_state.set(GameState::Pause);
+    }
+}
+
+fn check_input_for_pause_exit(
+    input: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if input.just_pressed(KeyCode::KeyP) || input.just_pressed(KeyCode::Escape) {
+        next_state.set(GameState::Playing);
     }
 }

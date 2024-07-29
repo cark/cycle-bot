@@ -127,6 +127,8 @@ pub enum SfxKey {
     Step3,
     Step4,
     Engine,
+    Jump,
+    Clonk,
 }
 
 impl AssetKey for SfxKey {
@@ -146,6 +148,8 @@ impl FromWorld for HandleMap<SfxKey> {
                 asset_server.load("audio/sfx/button_press.ogg"),
             ),
             (SfxKey::Engine, asset_server.load("audio/sfx/engine.ogg")),
+            (SfxKey::Jump, asset_server.load("audio/sfx/jump.ogg")),
+            (SfxKey::Clonk, asset_server.load("audio/sfx/clonk.ogg")),
             (SfxKey::Step1, asset_server.load("audio/sfx/step1.ogg")),
             (SfxKey::Step2, asset_server.load("audio/sfx/step2.ogg")),
             (SfxKey::Step3, asset_server.load("audio/sfx/step3.ogg")),

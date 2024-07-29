@@ -13,7 +13,7 @@ use super::{
     entity_id::EntityId,
     entity_type::EntityType,
     physics::{coll_groups, ObjectGroup},
-    spawn::player::Torso,
+    spawn::player::{LostLimbs, Torso},
     GameState,
 };
 
@@ -49,6 +49,7 @@ pub struct SpawnCheckpoint {
 pub struct ActiveCheckpoint {
     pub entity: Entity,
     pub eid: EntityId,
+    pub lost_limbs: LostLimbs,
 }
 
 #[derive(Debug, Event)]
@@ -99,12 +100,14 @@ pub fn on_activate_checkpoint(
     mut q_lights: Query<(Entity, &mut Sprite), With<CheckpointLight>>,
     config: Res<GameConfig>,
     mut active_checkpoint: ResMut<CurrentActiveCheckpoint>,
+    lost_limbs: Res<LostLimbs>,
 ) {
     for (e_checkpoint, &id, children) in &q_checkpoint {
         if id == trigger.event().0 {
             active_checkpoint.0 = Some(ActiveCheckpoint {
                 eid: trigger.event().0,
                 entity: e_checkpoint,
+                lost_limbs: *lost_limbs,
             });
             for child in children {
                 if let Ok((_light, mut sprite)) = q_lights.get_mut(*child) {

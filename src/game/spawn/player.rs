@@ -12,7 +12,8 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     data::config::GameConfig,
     game::{
-        assets::{HandleMap, ImageKey},
+        assets::{HandleMap, ImageKey, SfxKey},
+        audio::{engine::AccelerateEngine, sfx::PlaySfx},
         camera::CenterCamera,
         checkpoint::{Checkpoint, CurrentActiveCheckpoint},
         physics::{coll_groups, ObjectGroup},
@@ -31,26 +32,25 @@ pub(super) fn plugin(app: &mut App) {
         .register_type::<Player>()
         .add_systems(
             Update,
-            (
-                log_speed,
-                check_touch_ground,
-                calc_forces,
-                check_respawn,
-                monitor_damage_contacts,
-            )
-                .chain()
+            check_respawn
                 .in_set(AppSet::RecordInput)
                 .run_if(in_state(Screen::Playing)),
         )
         .add_systems(
             Update,
-            center_camera
+            (
+                center_camera,
+                monitor_damage_contacts,
+                log_speed,
+                check_touch_ground,
+                calc_forces,
+            )
                 .in_set(AppSet::Update)
                 .run_if(in_state(GameState::Playing)),
         );
 }
 
-#[derive(Debug, Resource, Default)]
+#[derive(Debug, Resource, Default, Eq, PartialEq, Clone, Copy)]
 pub struct LostLimbs {
     pub left: bool,
     pub right: bool,
@@ -184,6 +184,9 @@ fn monitor_damage_contacts(
 ) {
     for event in contact_force_events.read() {
         if let Ok((arm_entity, arm)) = q_arm.get(event.collider1).or(q_arm.get(event.collider2)) {
+            if event.max_force_magnitude > 1.0 {
+                cmd.trigger(PlaySfx::Key(SfxKey::Clonk));
+            }
             if event.max_force_magnitude > config.arms.detach_force {
                 cmd.entity(arm_entity)
                     .remove::<LiveArm>()
@@ -199,6 +202,9 @@ fn monitor_damage_contacts(
             .get(event.collider1)
             .or(q_torso.get(event.collider2))
         {
+            if event.max_force_magnitude > 1.0 {
+                cmd.trigger(PlaySfx::Key(SfxKey::Clonk));
+            }
             if event.max_force_magnitude > config.torso.death_force {
                 cmd.entity(torso).remove::<LiveTorso>();
                 cmd.trigger(PlayerDeath);
@@ -390,10 +396,12 @@ fn on_respawn(
     mut cmd: Commands,
     current_active_checkpoint: Res<CurrentActiveCheckpoint>,
     q_checkpoint: Query<&Transform, With<Checkpoint>>,
+    mut lost_limbs: ResMut<LostLimbs>,
 ) {
     cmd.trigger(Despawn);
     if let Some(ref active_checkpoint) = current_active_checkpoint.0 {
         if let Ok(tr) = q_checkpoint.get(active_checkpoint.entity) {
+            *lost_limbs = active_checkpoint.lost_limbs;
             cmd.trigger(SpawnPlayer(tr.translation.xy() + vec2(0.0, 1.0)));
         }
     }
@@ -425,8 +433,10 @@ fn calc_forces(
     let mut jump = 0.0;
     if input.just_pressed(KeyCode::Space) && !q_player_on_ground.is_empty() {
         jump = 1.0;
+        cmd.trigger(PlaySfx::Key(SfxKey::Jump));
     }
     if torque_direction != 0.0 || jump != 0.0 {
+        cmd.trigger(AccelerateEngine);
         for (wheel, mut velocity) in &mut q_wheel {
             cmd.entity(wheel).insert(ExternalImpulse {
                 // impulse: vec2(0.0, jump * config.wheel.jump_impulse),

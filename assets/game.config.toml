@@ -104,8 +104,11 @@ size = { x = 5.0, y = 2.0 }
 ratio = 16.0
 
 [audio]
-soundtrack_volume = 1.0
+soundtrack_volume = 0.1
 sfx_volume = 1.0
-engine = 0.5
-engine_acc = 1.0
-engine_dec = 0.5
+engine = 0.25
+engine_acc = 2.0
+engine_dec = 1.0
+button = 0.5
+jump = 0.5
+clonk = 0.5

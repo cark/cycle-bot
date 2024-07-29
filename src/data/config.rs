@@ -198,6 +198,9 @@ pub struct AudioConfig {
     pub engine: f32,
     pub engine_acc: f32,
     pub engine_dec: f32,
+    pub button: f32,
+    pub jump: f32,
+    pub clonk: f32,
 }
 #[derive(serde::Deserialize, Clone, Copy)]
 pub struct ColorConfig {

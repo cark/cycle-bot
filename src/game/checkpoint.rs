@@ -111,7 +111,8 @@ pub fn on_activate_checkpoint(
             });
             for child in children {
                 if let Ok((_light, mut sprite)) = q_lights.get_mut(*child) {
-                    sprite.color = Color::from(Srgba::from(config.checkpoint.light.lit_color));
+                    sprite.color =
+                        Color::from(Srgba::from(config.checkpoint.light.lit_color) * 1.1);
                 }
             }
         }

@@ -315,25 +315,25 @@ fn on_spawn_player(
                         ..default()
                     },
                     StateScoped(Screen::Playing),
-                ))
-                .with_children(|cmd| {
-                    cmd.spawn((
-                        Eyes,
-                        SpriteBundle {
-                            sprite: Sprite {
-                                custom_size: Some(vec2(config.eyes.width, config.eyes.height)),
-                                ..default()
-                            },
-                            transform: Transform::from_translation(vec3(
-                                config.eyes.x,
-                                config.eyes.y,
-                                0.5,
-                            )),
-                            texture: image_handles[&ImageKey::Eyes].clone_weak(),
-                            ..default()
-                        },
-                    ));
-                });
+                ));
+                // .with_children(|cmd| {
+                //     cmd.spawn((
+                //         Eyes,
+                //         SpriteBundle {
+                //             sprite: Sprite {
+                //                 custom_size: Some(vec2(config.eyes.width, config.eyes.height)),
+                //                 ..default()
+                //             },
+                //             transform: Transform::from_translation(vec3(
+                //                 config.eyes.x,
+                //                 config.eyes.y,
+                //                 0.5,
+                //             )),
+                //             texture: image_handles[&ImageKey::Eyes].clone_weak(),
+                //             ..default()
+                //         },
+                //     ));
+                // });
             })
             .id();
         let mut arms = vec![];
@@ -347,11 +347,12 @@ fn on_spawn_player(
             let socket_arm_joint = RevoluteJointBuilder::new()
                 .local_anchor1(vec2(arm_config.socket.point.x, arm_config.socket.point.y))
                 .local_anchor2(vec2(-config.arms.length / 2.0, 0.0));
-            let arm_center = vec3(
-                config.arms.length / 2.0 + body_translation.x,
-                body_translation.y,
-                1.0,
-            );
+            let arm_center = vec3(arm_config.socket.point.x, arm_config.socket.point.y, 1.0);
+            // let arm_center = vec3(
+            //     config.arms.length / 2.0 + body_translation.x,
+            //     body_translation.y,
+            //     1.0,
+            // );
             cmd.spawn((
                 *arm,
                 LiveArm,

@@ -33,7 +33,8 @@ pub fn on_spawn_arrow(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
     config: Res<GameConfig>,
 ) {
-    let layout = TextureAtlasLayout::from_grid(UVec2::new(244, 131), 2, 1, None, None);
+    let layout =
+        TextureAtlasLayout::from_grid(UVec2::new(83, 31), 2, 1, Some(UVec2::new(1, 0)), None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let atlas_animation =
         AtlasAnimation::new(2, Duration::from_secs_f32(config.arrow.frame_interval));

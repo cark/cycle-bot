@@ -1,6 +1,9 @@
 //! Game mechanics and content.
 
-use bevy::prelude::*;
+use bevy::{
+    input::{common_conditions::input_just_pressed, gamepad::gamepad_button_event_system},
+    prelude::*,
+};
 use bevy_rapier2d::{plugin::RapierConfiguration, render::DebugRenderContext};
 
 use crate::{data::config::GameConfig, screen::Screen};
@@ -68,6 +71,11 @@ pub(super) fn plugin(app: &mut App) {
     {
         app.add_systems(OnExit(GameState::Editing), start_rapier);
         app.add_systems(OnEnter(GameState::Editing), stop_rapier);
+        app.add_systems(OnEnter(GameState::BotSetup), stop_rapier);
+        app.add_systems(
+            Update,
+            go_to_bot_setup.run_if(input_just_pressed(KeyCode::F9)),
+        );
     }
 }
 
@@ -79,8 +87,19 @@ pub enum GameState {
     Victory,
     Death,
     Pause,
+    // TODO: this is for testing only
+    #[cfg(feature = "dev")]
+    BotSetup,
     #[cfg(feature = "dev")]
     Editing,
+}
+
+#[cfg(feature = "dev")]
+fn go_to_bot_setup(mut cmd: Commands, mut next_state: ResMut<NextState<GameState>>) {
+    use spawn::player::Respawn;
+
+    next_state.set(GameState::BotSetup);
+    cmd.trigger(Respawn);
 }
 
 fn playing_entered(

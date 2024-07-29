@@ -3,7 +3,13 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use super::{playing::StartPlaying, Screen};
-use crate::{game::checkpoint::CurrentActiveCheckpoint, ui::prelude::*};
+use crate::{
+    game::{
+        assets::{HandleMap, ImageKey},
+        checkpoint::CurrentActiveCheckpoint,
+    },
+    ui::prelude::*,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Title), enter_title);
@@ -27,6 +33,7 @@ fn enter_title(
     mut commands: Commands,
     current_checkpoint: Res<CurrentActiveCheckpoint>,
     q_window: Query<&Window, With<PrimaryWindow>>,
+    image_handles: Res<HandleMap<ImageKey>>,
 ) {
     for window in &q_window {
         let font_size = window.height() / 24.;
@@ -34,11 +41,29 @@ fn enter_title(
             .ui_center_root()
             .insert(StateScoped(Screen::Title))
             .with_children(|cmd| {
+                cmd.spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.),
+                            aspect_ratio: Some(829. / 128.),
+                            // height: Val::Vh(25.),
+                            margin: UiRect::vertical(Val::Vh(15.)),
+                            flex_grow: 2.0,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    UiImage {
+                        texture: image_handles[&ImageKey::Title].clone_weak(),
+                        ..default()
+                    },
+                ));
                 cmd.spawn(NodeBundle {
                     style: Style {
                         display: Display::Flex,
                         flex_direction: FlexDirection::Column,
                         row_gap: Val::Vh(2.0),
+                        flex_grow: 1.0,
                         ..default()
                     },
                     ..default()

@@ -36,6 +36,7 @@ pub enum ImageKey {
     ArrowSet,
     StarLit,
     StarUnlit,
+    Title,
 }
 
 impl AssetKey for ImageKey {
@@ -112,6 +113,10 @@ impl FromWorld for HandleMap<ImageKey> {
             (
                 ImageKey::StarUnlit,
                 asset_server.load_with_settings("images/star_unlit.png", nearest),
+            ),
+            (
+                ImageKey::Title,
+                asset_server.load_with_settings("images/title.png", nearest),
             ),
         ]
         .into()

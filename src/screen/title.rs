@@ -1,10 +1,6 @@
 //! The title screen that appears when the game starts.
 
-use bevy::{
-    math::{vec2, vec3},
-    prelude::*,
-    window::PrimaryWindow,
-};
+use bevy::{prelude::*, window::PrimaryWindow};
 
 use super::{playing::StartPlaying, Screen};
 use crate::{
@@ -13,7 +9,6 @@ use crate::{
         checkpoint::CurrentActiveCheckpoint,
     },
     ui::prelude::*,
-    MainCamera,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -38,7 +33,6 @@ fn enter_title(
     mut cmd: Commands,
     current_checkpoint: Res<CurrentActiveCheckpoint>,
     q_window: Query<&Window, With<PrimaryWindow>>,
-    mut q_camera: Query<(&mut Transform, &mut OrthographicProjection), With<MainCamera>>,
     image_handles: Res<HandleMap<ImageKey>>,
 ) {
     for window in &q_window {

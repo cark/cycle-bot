@@ -16,20 +16,22 @@ pub(super) fn plugin(app: &mut App) {
 
 fn play_soundtrack(
     trigger: Trigger<PlaySoundtrack>,
-    mut commands: Commands,
+    mut cmd: Commands,
     soundtrack_handles: Res<HandleMap<SoundtrackKey>>,
     soundtrack_query: Query<Entity, With<IsSoundtrack>>,
     config: Res<GameConfig>,
+    // gv: Res<GlobalVolume>,
 ) {
+    // warn!("Global volume: {}", gv.volume.get());
     for entity in &soundtrack_query {
-        commands.entity(entity).despawn_recursive();
+        cmd.entity(entity).despawn_recursive();
     }
 
     let soundtrack_key = match trigger.event() {
         PlaySoundtrack::Key(key) => *key,
         PlaySoundtrack::Disable => return,
     };
-    commands.spawn((
+    cmd.spawn((
         AudioSourceBundle {
             source: soundtrack_handles[&soundtrack_key].clone_weak(),
             settings: PlaybackSettings {
@@ -40,6 +42,7 @@ fn play_soundtrack(
         },
         IsSoundtrack,
     ));
+    cmd.trigger(AdjustSoundtrackVolume(config.audio.soundtrack_volume));
 }
 
 #[derive(Event)]

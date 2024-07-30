@@ -7,12 +7,7 @@ pub mod mouse;
 mod screen;
 mod ui;
 
-use bevy::{
-    asset::AssetMetaCheck,
-    audio::{AudioPlugin, Volume},
-    math::ivec2,
-    prelude::*,
-};
+use bevy::{asset::AssetMetaCheck, audio::AudioPlugin, math::ivec2, prelude::*};
 
 use bevy_rapier2d::prelude::*;
 
@@ -56,9 +51,9 @@ impl Plugin for AppPlugin {
                     ..default()
                 })
                 .set(AudioPlugin {
-                    global_volume: GlobalVolume {
-                        volume: Volume::new(0.3),
-                    },
+                    // global_volume: GlobalVolume {
+                    //     volume: Volume::new(0.3),
+                    // },
                     ..default()
                 }),
         );

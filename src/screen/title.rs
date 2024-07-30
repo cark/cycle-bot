@@ -1,6 +1,10 @@
 //! The title screen that appears when the game starts.
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{
+    math::{vec2, vec3},
+    prelude::*,
+    window::PrimaryWindow,
+};
 
 use super::{playing::StartPlaying, Screen};
 use crate::{
@@ -9,6 +13,7 @@ use crate::{
         checkpoint::CurrentActiveCheckpoint,
     },
     ui::prelude::*,
+    MainCamera,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -30,34 +35,39 @@ enum TitleAction {
 }
 
 fn enter_title(
-    mut commands: Commands,
+    mut cmd: Commands,
     current_checkpoint: Res<CurrentActiveCheckpoint>,
     q_window: Query<&Window, With<PrimaryWindow>>,
+    mut q_camera: Query<(&mut Transform, &mut OrthographicProjection), With<MainCamera>>,
     image_handles: Res<HandleMap<ImageKey>>,
 ) {
     for window in &q_window {
         let font_size = window.height() / 24.;
-        commands
-            .ui_center_root()
+        cmd.ui_center_root()
             .insert(StateScoped(Screen::Title))
             .with_children(|cmd| {
-                cmd.spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Percent(100.),
-                            aspect_ratio: Some(829. / 128.),
-                            // height: Val::Vh(25.),
-                            margin: UiRect::vertical(Val::Vh(15.)),
-                            flex_grow: 2.0,
+                cmd.spawn((NodeBundle {
+                    style: Style {
+                        margin: UiRect::vertical(Val::Vh(15.)),
+                        flex_grow: 1.0,
+                        ..default()
+                    },
+                    ..default()
+                },))
+                    .with_children(|cmd| {
+                        cmd.spawn(ImageBundle {
+                            style: Style {
+                                width: Val::Vw(100.),
+                                height: Val::Vw(100.) * (128. / 829.),
+                                ..default()
+                            },
+                            image: UiImage {
+                                texture: image_handles[&ImageKey::Title].clone_weak(),
+                                ..default()
+                            },
                             ..default()
-                        },
-                        ..default()
-                    },
-                    UiImage {
-                        texture: image_handles[&ImageKey::Title].clone_weak(),
-                        ..default()
-                    },
-                ));
+                        });
+                    });
                 cmd.spawn(NodeBundle {
                     style: Style {
                         display: Display::Flex,

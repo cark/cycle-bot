@@ -83,8 +83,9 @@ fn all_assets_loaded(
 }
 
 #[cfg(feature = "dev")]
-fn continue_to_title(mut cmd: Commands) {
-    cmd.trigger(StartPlaying::NewGame);
+fn continue_to_title(mut cmd: Commands, mut next_screen: ResMut<NextState<Screen>>) {
+    // cmd.trigger(StartPlaying::NewGame);
+    next_screen.set(Screen::Title);
 }
 #[cfg(not(feature = "dev"))]
 fn continue_to_title(mut next_screen: ResMut<NextState<Screen>>) {

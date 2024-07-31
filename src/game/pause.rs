@@ -5,7 +5,7 @@ use crate::{data::config::GameConfig, screen::Screen, ui::prelude::*, AppSet};
 use super::{
     assets::{FontKey, HandleMap},
     audio::soundtrack::AdjustSoundtrackVolume,
-    GameState,
+    start_rapier, stop_rapier, GameState,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -23,7 +23,9 @@ pub(super) fn plugin(app: &mut App) {
                     .in_set(AppSet::Update)
                     .run_if(in_state(GameState::Pause)),
             ),
-        );
+        )
+        .add_systems(OnEnter(GameState::Pause), stop_rapier)
+        .add_systems(OnExit(GameState::Pause), start_rapier);
 }
 
 #[derive(Debug, Component)]

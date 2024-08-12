@@ -49,8 +49,8 @@ impl Lerpable for Vec3 {
         start + (end - start) * t
     }
 
-    fn unlerp(range: (Vec3, Vec3), value: Vec3) -> f32 {
-        let (start, end) = range;
+    fn unlerp((start, end): (Vec3, Vec3), value: Vec3) -> f32 {
+        //let (start, end) = range;
         (value - start).length() / (end - start).length()
     }
 }
